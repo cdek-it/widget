@@ -1,5 +1,5 @@
 <?php
-
+header('Access-Control-Allow-Origin: *');
 $files = scandir($D = __DIR__ . '/tpl');
 unset($files[0]);
 unset($files[1]);
