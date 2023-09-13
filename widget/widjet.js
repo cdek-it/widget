@@ -565,6 +565,22 @@ function ISDEKWidjet(params) {
 				setting: 'start',
 				hint: 'Value must be bool (true / false)'
 			},
+			region: {
+				value: false,
+				check: function (wat) {
+					return (typeof(wat) === 'boolean');
+				},
+				setting: 'start',
+				hint: 'Value must be bool (true / false)'
+			},
+			apikey: {
+				value: '9720c798-730b-4af9-898a-937b264afcdd',
+				check: function (wat) {
+					return (typeof(wat) === 'string');
+				},
+				setting: 'start',
+				hint: 'Value must be string (apikey)'
+			},
 			goods: {
 				value: false,
 				check: function (wat) {
@@ -615,7 +631,7 @@ function ISDEKWidjet(params) {
 				function: function () {
 					this.service.loadTag(this.options.get('path') + "ipjq.js", 'script', loaders.onIPJQLoad);
 					var yalang = (this.options.get('lang') == 'rus') ? 'ru_RU' : 'en_GB';
-					this.service.loadTag("https://api-maps.yandex.ru/2.1.66/?lang="+yalang, 'script', loaders.onYmapsLoad);
+					this.service.loadTag("https://api-maps.yandex.ru/2.1/?apikey=" + this.options.get('apikey') + "&lang="+yalang, 'script', loaders.onYmapsLoad);
 					this.service.loadTag(this.options.get('path') + 'style.css', 'link', loaders.onStylesLoad);
 
 				}
@@ -791,7 +807,9 @@ function ISDEKWidjet(params) {
 	var DATA = {
 
 		regions: {
-			collection: {}
+			collection: {},
+			cityes: {},
+			map: {}
 		},
 		city: {
 			indexOfSome: function (findItem, ObjItem) {
@@ -878,10 +896,33 @@ function ISDEKWidjet(params) {
 				}
 			},
 
-			getCurrent: function () {
+			getRegionPVZ: function (intCityID) {
 
+				if (this.check(intCityID)) {
+					let by_region = {};
+					let region = DATA.regions.cityes[intCityID];
+					let city_in_region = [];
+					city_in_region.push(...DATA.regions.map[region]);
+					if (region === 81) city_in_region.push(...DATA.regions.map[9]);
+					if (region === 9) city_in_region.push(...DATA.regions.map[81]);
+					if (region === 82) city_in_region.push(...DATA.regions.map[26]);
+					if (region === 26) city_in_region.push(...DATA.regions.map[82]);
+					city_in_region.forEach((item, i, arr) => {
+						var pvzList =  DATA.PVZ.collection[item];
+						for (let code in pvzList) {
+							by_region[code] = pvzList[code];
+						}
+					});
+					return by_region;
+				} else {
+					widjet.logger.error('No PVZ in city ' + intCityID);
+				}
+			},
+
+			getCurrent: function () {
+				if (widjet.options.get('region')) return this.getRegionPVZ(DATA.city.current);
 				return this.getCityPVZ(DATA.city.current);
-                    }
+			}
 		},
 
 		parsePVZFile: function (data) {
@@ -901,6 +942,8 @@ function ISDEKWidjet(params) {
 			else {
 				if (typeof(data.pvz.REGIONS) != 'undefined') {
 					DATA.regions.collection = data.pvz.REGIONS;
+					DATA.regions.cityes = data.pvz.CITYREG;
+					DATA.regions.map = data.pvz.REGIONSMAP;
 				}
 
 				for (var pvzCity in data.pvz.PVZ) {
@@ -934,7 +977,7 @@ function ISDEKWidjet(params) {
 				tarif: false
 			}
 		},
-
+		history: [],
 		defaultGabs: {length: 20, width: 30, height: 40, weight: 1},
 
 		cityFrom: false,
@@ -943,13 +986,33 @@ function ISDEKWidjet(params) {
 
 		calculate: function () {
 			if (this.cityFrom) {
-				var mark = Date.now();
-				this.binder = {};
-				this.binder[mark] = {};
-				for (var i in this.profiles) {
-					this.profiles[i].price = null;
-					this.profiles[i].term = null;
-					this.request(i, mark);
+				let courier_idx = this.history.findIndex( (e) => (e.code === parseInt(DATA.city.current) && e.type === 'courier'));
+				let pickup_idx = this.history.findIndex( (e) => (e.code === parseInt(DATA.city.current) && e.type === 'pickup'));
+				if (courier_idx !== -1 && pickup_idx !== -1) {
+					for (var i in this.profiles) {
+						let idx = (i === 'pickup') ? pickup_idx : courier_idx;
+						if (idx !== -1) {
+							this.profiles[i].price = this.history[idx].price;
+							this.profiles[i].term = this.history[idx].term;
+							this.profiles[i].tarif = this.history[idx].tarif;
+						}
+					}
+					widjet.binders.trigger('onCalculate', {
+						profiles: widjet.service.cloneObj(CALCULATION.profiles),
+						city: DATA.city.current,
+						cityName: DATA.city.getName(DATA.city.current)
+					});
+				}
+				else {
+					var mark = Date.now();
+					// this.binder = {};
+					this.binder[parseInt(DATA.city.current)] = {};
+					for (var i in this.profiles) {
+						this.profiles[i].price = null;
+						this.profiles[i].term = null;
+						this.profiles[i].tarif = false;
+						this.request(i, mark);
+					}
 				}
 			} else {
 				widjet.logger.warn('No city from given: calculation is impossible');
@@ -1012,17 +1075,23 @@ function ISDEKWidjet(params) {
 				} else
 					widjet.logger.error('Error while calculating: ' + sign.substring(0, sign.length - 2));
 			} else {
-
 				CALCULATION.bad = false;
 				CALCULATION.profiles[answer.type].price = answer.result.price;
 				CALCULATION.profiles[answer.type].term = (answer.result.deliveryPeriodMax === answer.result.deliveryPeriodMin) ? answer.result.deliveryPeriodMin : answer.result.deliveryPeriodMin + "-" + answer.result.deliveryPeriodMax;
 				CALCULATION.profiles[answer.type].tarif = typeof answer.result.tarif != 'undefined' ? answer.result.tarif : answer.result.tariffId;
+				CALCULATION.history.push({
+					code: parseInt(DATA.city.current),
+					type: answer.type,
+					price: answer.result.price,
+					term: CALCULATION.profiles[answer.type].term,
+					tarif: CALCULATION.profiles[answer.type].tarif
+				});
 			}
 
-			if (typeof(answer.type) !== 'undefined' && typeof(answer.timestamp) !== 'undefined' && typeof(CALCULATION.binder[answer.timestamp]) !== 'undefined') {
-				CALCULATION.binder[answer.timestamp][answer.type] = true;
+			if (typeof(answer.type) !== 'undefined' && typeof(CALCULATION.binder[parseInt(DATA.city.current)]) !== 'undefined') {
+				CALCULATION.binder[parseInt(DATA.city.current)][answer.type] = true;
 				for (var i in CALCULATION.profiles) {
-					if (typeof(CALCULATION.binder[answer.timestamp][i]) === 'undefined') {
+					if (typeof(CALCULATION.binder[parseInt(DATA.city.current)][i]) === 'undefined') {
 						return false;
 					}
 				}
@@ -1756,6 +1825,13 @@ function ISDEKWidjet(params) {
 
 			selectMark: function (wat) {
 				var cityPvz = DATA.PVZ.getCurrent();
+				if (parseInt(DATA.city.current) !== parseInt(cityPvz[wat].CityCode)) {
+					DATA.city.set(parseInt(cityPvz[wat].CityCode));
+					city = DATA.city.getName(cityPvz[wat].CityCode);
+					ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search input[type=text]').val(city);
+					CALCULATION.calculate();
+					template.controller.updatePrices();
+				}
 
                     this.map.setCenter(template.ymaps.makeUpCenter([cityPvz[wat].cY, cityPvz[wat].cX]));
 
@@ -2041,7 +2117,7 @@ function ISDEKWidjet(params) {
 
 			if (filter != '') {
 				$matches = $li.filter(function () {
-					return filter.test(ipjq(this).find('.CDEK-widget__search-list__city-name').text().replace(/[^\wа-яё]+/gi, ""));
+					return filter.test(ipjq(this).find('.CDEK-widget__search-list__city-name').text().replace(/[^\wа-яё\s-]+/gi, ""));
 				});
 
 				$li.not($matches).addClass('no-active').removeClass('focus');

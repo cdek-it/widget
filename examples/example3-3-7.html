@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример работы виджета ПВЗ</title>
+    <script type="text/javascript" id="ISDEKscript" src="../widget/widjet.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    var widjet = new ISDEKWidjet({
+        defaultCity: 'Гатчина',
+        cityFrom: 'Омск',
+        country: 'Россия',
+        inregion: true,
+        link: 'forpvz'
+    });
+</script>
+
+<p>Пример отображения пунков выдачи заказов для всего региона</p>
+<div id="forpvz" style="height:600px;"></div>
+
+</body>
+</html>

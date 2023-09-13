@@ -186,6 +186,8 @@ class ISDEKservice
 
 				if (!array_key_exists($cityCode, $arList['CITY'])) {
 					$arList['CITY'][$cityCode] = $city;
+					$arList['CITYREG'][$cityCode] = (int)$val['RegionCode'];
+					$arList['REGIONSMAP'][(int)$val['RegionCode']][] = (int)$cityCode;
 					$arList['CITYFULL'][$cityCode] = (string)$val['CountryName'] . ' ' . (string)$val['RegionName'] . ' ' . $city;
 					$arList['REGIONS'][$cityCode] = implode(', ', array_filter(array((string)$val['RegionName'], (string)$val['CountryName'])));
 				}
