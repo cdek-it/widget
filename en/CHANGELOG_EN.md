@@ -1,3 +1,14 @@
+2.5.1 / 2021-02-20
+==================
+
+  * Fixed a widget for php5.3 support
+  * Added an example of how the widget works with delivery to concrete address
+  * Fixed link to changelog
+  * Updated documentation
+  * Added missing language phrases for English translation
+  * Fixed language detection error
+  * Added the option to configure the currency used in calculating the delivery cost
+
 2.5.0 / 2020-07-20
 ===================
 

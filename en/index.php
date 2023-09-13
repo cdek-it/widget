@@ -27,6 +27,7 @@
         onReady: onReady,
         onChoose: onChoose,
         onChooseProfile: onChooseProfile,
+        onChooseAddress: onChooseAddress,
         onCalculate: onCalculate
     });
 
@@ -48,6 +49,15 @@
         console.log('chosenCourier', wat);
         serviceMess(
             'Selected delivery by courier to the city ' + wat.city + "\n<br/>" +
+            'price ' + wat.price + "\n<br/>" +
+            'time ' + wat.term + ' days.'
+        );
+    }
+
+    function onChooseAddress(wat) {
+        console.log('chosenAddress', wat);
+        serviceMess(
+            'Selected delivery by courier to the address ' + wat.address + "\n<br/>" +
             'price ' + wat.price + "\n<br/>" +
             'time ' + wat.term + ' days.'
         );
@@ -92,19 +102,24 @@ To connect the widget, you need to add the code to the desired page (it is recom
 
 And also copy the <a href="https://widget.cdek.ru/pvzwidget.zip">service.php</a> file to your website,
 in which you can make settings in accordance with your integration data.
-For example, in lines 5-6 indicate the tariffs used:
+For example, in lines 11 and 14 indicate the tariffs used:
 <pre>
-ISDEKservice::setTarifPriority(
+    /** Настройте приоритет тарифов курьерской доставки */
+    /** Set up the priority of courier delivery tariffs */
     array(233, 137, 139, 16, 18, 11, 1, 3, 61, 60, 59, 58, 57, 83),
-    array(234, 136, 138, 15, 17, 62, 63, 5, 10, 12)
-);
+    /** Настройте приоритет тарифов доставки до пунктов выдачи */
+    /** Set the priority of delivery tariffs to pick-up points */
+    array(234, 136, 138, 15, 17, 10, 12, 5, 62, 63),
 </pre>
-
-And in lines 17-18, indicate the account for the integration in order to receive the shipping cost in accordance with your contract:
+And in lines 17 and 20, indicate the account for the integration in order to receive the shipping cost in accordance with your contract:
 <pre>
-    protected static $account = 'ACCOUNT_FROM_INTEGRATION';
-    protected static $key     = 'SECURE_PASSWORD_FROM_INTEGRATION';</pre>
-
+    /** Вставьте свой аккаунт\идентификатор для интеграции */
+    /** Put your account for integration here */
+    "ACCOUNT_FROM_INTEGRATION",
+    /** Вставьте свой пароль для интеграции */
+    /** Put your password for integration here */
+    "SECURE_PASSWORD_FROM_INTEGRATION"
+</pre>
 
 To display the widget on your site, you need to create a javascript handler for the widget:
 <pre>&lt;script type="text/javascript"&gt;

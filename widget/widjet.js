@@ -429,6 +429,10 @@ function ISDEKWidjet(params) {
 		params.templatepath = params.path + 'template.php';
 	}
 
+	if (!params.currency) {
+		params.currency = 'RUB';
+	}
+
 	var loaders = {
 		onJSPCSSLoad: function () {
 			widjet.states.check('JSPCSS');
@@ -582,7 +586,7 @@ function ISDEKWidjet(params) {
                 hint: 'Value must be bool (true / false)'
 			},
 			apikey: {
-				value: '9720c798-730b-4af9-898a-937b264afcdd',
+				value: 'ea83aee9-5073-407d-8ebb-a9bc2770cd09',
 				check: function (wat) {
 					return (typeof(wat) === 'string');
 				},
@@ -620,6 +624,17 @@ function ISDEKWidjet(params) {
 				},
 				setting: 'dataLoaded',
 				hint: 'City From wasn\'t founded'
+			},
+			currency: {
+				value: params.currency,
+				check: function (currency) {
+					return [
+						'RUB', 'KZT', 'USD', 'EUR', 'GBP', 'CNY', 'BYN', 'UAH', 'KGS', 'AMD', 'TRY', 'THB', 'KRW',
+						'AED', 'UZS', 'MNT'
+					].indexOf(currency) !== -1;
+				},
+				setting: 'start',
+				hint: 'Currency wasn\'t founded'
 			}
 		},
 		events: [
@@ -988,11 +1003,13 @@ function ISDEKWidjet(params) {
 		profiles: {
 			courier: {
 				price: 0,
+				currency: 'RUB',
 				term: 0,
 				tarif: false
 			},
 			pickup: {
 				price: 0,
+				currency: 'RUB',
 				term: 0,
 				tarif: false
 			}
@@ -1060,6 +1077,7 @@ function ISDEKWidjet(params) {
 
 			data.cityFromId = this.cityFrom;
 			data.cityToId = (forse) ? DATA.city.get() : DATA.city.getId(DATA.city.current);
+			data.currency = widjet.options.get('currency');
 
 			if (typeof(timestamp) !== 'undefined') {
 				data.timestamp = timestamp;
@@ -1101,6 +1119,7 @@ function ISDEKWidjet(params) {
 			} else {
 				CALCULATION.bad = false;
 				CALCULATION.profiles[answer.type].price = answer.result.price;
+				CALCULATION.profiles[answer.type].currency = answer.result.currency;
 				CALCULATION.profiles[answer.type].term = (answer.result.deliveryPeriodMax === answer.result.deliveryPeriodMin) ? answer.result.deliveryPeriodMin : answer.result.deliveryPeriodMin + "-" + answer.result.deliveryPeriodMax;
 				CALCULATION.profiles[answer.type].tarif = typeof answer.result.tarif != 'undefined' ? answer.result.tarif : answer.result.tariffId;
 				CALCULATION.history.push({
@@ -1108,6 +1127,7 @@ function ISDEKWidjet(params) {
 					weight: cargo.getWeight(),
 					type: answer.type,
 					price: answer.result.price,
+					currency: answer.result.currency,
 					term: CALCULATION.profiles[answer.type].term,
 					tarif: CALCULATION.profiles[answer.type].tarif
 				});
@@ -1358,7 +1378,7 @@ function ISDEKWidjet(params) {
                                 if(!CALCULATION.bad || obPrices[i].price !== false) {
                                     _tmpBlock = HTML.getBlock('d_' + i, {
                                         "SUMM": obPrices[i].price === null ? LANG.get('COUNTING') : obPrices[i].price,
-                                        "RUB": obPrices[i].price === null ? '' : LANG.get('RUB'),
+                                        "CURR": obPrices[i].price === null ? '' : LANG.get(obPrices[i].currency),
                                         "TIME": obPrices[i].term === null ? '' : obPrices[i].term,
                                         "DAY": obPrices[i].term === null ? '' : LANG.get('DAY')
                                     });
@@ -1474,6 +1494,7 @@ function ISDEKWidjet(params) {
 					'id': id,
 					'PVZ': PVZ[id],
 					'price': CALCULATION.profiles.pickup.price,
+					'currency': CALCULATION.profiles.pickup.currency,
 					'term': CALCULATION.profiles.pickup.term,
 					'tarif': CALCULATION.profiles.pickup.tarif,
 					'city': DATA.city.current,
@@ -1489,6 +1510,7 @@ function ISDEKWidjet(params) {
 					'city': DATA.city.current,
                     'cityName': DATA.city.getName(DATA.city.current),
 					'price': CALCULATION.profiles.courier.price,
+					'currency': CALCULATION.profiles.courier.currency,
 					'term': CALCULATION.profiles.courier.term,
 					'tarif': CALCULATION.profiles.courier.tarif
 				});
@@ -1618,6 +1640,7 @@ function ISDEKWidjet(params) {
                                         'city': DATA.city.current,
                                         'cityName': DATA.city.getName(DATA.city.current),
                                         'price': CALCULATION.profiles.courier.price,
+                                        'currency': CALCULATION.profiles.courier.currency,
                                         'term': CALCULATION.profiles.courier.term,
                                         'tarif': CALCULATION.profiles.courier.tarif,
                                         'address' : DATA.address.get()

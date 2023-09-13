@@ -26,6 +26,7 @@
 		onReady: onReady,
 		onChoose: onChoose,
 		onChooseProfile: onChooseProfile,
+        onChooseAddress: onChooseAddress,
 		onCalculate: onCalculate
 	});
 
@@ -51,6 +52,16 @@
 			'срок ' + wat.term + ' дн.'
 		);
 	}
+
+	function onChooseAddress(wat) {
+        console.log('chosenAddress', wat);
+        serviceMess(
+            'Выбрана доставка курьером в город ' + wat.cityName + "\n<br/>" +
+            'по адресу' + wat.address + '\n<br/>' +
+            'цена ' + wat.price + "\n<br/>" +
+            'срок ' + wat.term + ' дн.'
+        );
+    }
 
 	function onCalculate(wat) {
 		console.log('calculated', wat);
@@ -90,17 +101,24 @@
 <pre>&lt;script id="ISDEKscript" type="text/javascript" src="https://widget.cdek.ru/widget/widjet.js" charset="utf-8"&gt;&lt;/script&gt;</pre>
 
 А также скопировать к себе на сайт файл <a href="https://widget.cdek.ru/pvzwidget.zip">service.php</a>, в котором произвести настройки в соответствии с вашими данными по интеграции.
-Например, в строчках 5-6 указать используемые тарифы:
+Например, в строчках 11 и 14 указать используемые тарифы:
 <pre>
-ISDEKservice::setTarifPriority(
+    /** Настройте приоритет тарифов курьерской доставки */
+    /** Set up the priority of courier delivery tariffs */
     array(233, 137, 139, 16, 18, 11, 1, 3, 61, 60, 59, 58, 57, 83),
-    array(234, 136, 138, 15, 17, 62, 63, 5, 10, 12)
-);
+    /** Настройте приоритет тарифов доставки до пунктов выдачи */
+    /** Set the priority of delivery tariffs to pick-up points */
+    array(234, 136, 138, 15, 17, 10, 12, 5, 62, 63),
 </pre>
-А в строчках 17-18 указать аккаунт к интеграции, чтобы получать стоимость доставки в соответствии с вашим договором:
+А в строчках 17 и 20 указать аккаунт к интеграции, чтобы получать стоимость доставки в соответствии с вашим договором:
 <pre>
-    protected static $account = 'ACCOUNT_FROM_INTEGRATION';
-    protected static $key     = 'SECURE_PASSWORD_FROM_INTEGRATION';</pre>
+    /** Вставьте свой аккаунт\идентификатор для интеграции */
+    /** Put your account for integration here */
+    "ACCOUNT_FROM_INTEGRATION",
+    /** Вставьте свой пароль для интеграции */
+    /** Put your password for integration here */
+    "SECURE_PASSWORD_FROM_INTEGRATION"
+</pre>
 
 Для отображения виджета на вашем сайте необходимо создать javascript-обработчик для виджета:
 <pre>&lt;script type="text/javascript"&gt;
@@ -121,7 +139,7 @@ ISDEKservice::setTarifPriority(
 
 <h3>Ссылки</h3>
 <p>Примеры использования виджета: <a href="https://widget.cdek.ru/examples/">список примеров</a></p>
-<p>История изменений виджета можно посмотреть в файле: <a href="https://widget.cdek.ru/changes.php">список изменений модуля</a></p>
+<p>История изменений виджета можно посмотреть в файле: <a href="https://widget.cdek.ru/changes/">список изменений модуля</a></p>
 
 <h3>Пример работы виджета</h3>
 <p>Ниже представлена часть возможностей виджета. С более подробными возможностями можно ознакомиться,
