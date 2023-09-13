@@ -709,6 +709,7 @@ yx-axis
   border-top: 1px solid #f5f5f5;
 }
 .CDEK-widget__search-list ul li {
+  margin-top: 5px;
   margin: 0;
   width: 100%;
   background: #fff;
@@ -1201,6 +1202,56 @@ svg .CDEK-widget__logo-e {
   margin: 0 50px;
   cursor: default;
 }
+.CDEK-widget__panel-address-search {
+  text-align: center;
+  height: 42px;
+  width: calc(100% - 100px);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin: 0 50px;
+  cursor: default;
+}
+
+.CDEK-widget__panel-address-search input {
+  display: inline-block;
+  width: 95%;
+  margin: 5px;
+  padding: 5px 10px;
+  border: 1px solid #626262;
+  border-radius: 20px;
+  background-color: #ffffff;
+  color: #626262;
+  font-size: 14px;
+}
+
+.CDEK-widget__panel-tag {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.CDEK-widget__panel-tag p {
+  display: inline-block;
+  margin: 5px;
+  padding: 5px 10px;
+  border: 1px solid #626262;
+  border-radius: 20px;
+  background-color: #ffffff;
+  color: #626262;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cdek-tag.active p {
+  background-color: #626262;
+  color: #ffffff;
+}
+
+.CDEK-widget__panel-address-search input:focus {
+  outline: none;
+  box-shadow: 0 0 5px #ffffff;
+}
+
 .CDEK-widget__panel-headline::after {
   content: '';
   display: inline-block;
@@ -1236,7 +1287,7 @@ svg .CDEK-widget__logo-e {
 }
 .CDEK-widget__panel-content {
   width: 100%;
-  height: calc(100% - 60px);
+  height: calc(100% - 190px);
   overflow: hidden;
   padding: 0 1px;
 }

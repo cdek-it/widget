@@ -14,10 +14,10 @@ namespace {
             array(234, 136, 138, 15, 17, 10, 12, 5, 62, 63),
             /** Вставьте свой аккаунт\идентификатор для интеграции */
             /** Put your account for integration here */
-            '',
+            'cdek-login',
             /** Вставьте свой пароль для интеграции */
             /** Put your password for integration here */
-            ''
+            'cdek-pass'
         )
     );
 }
@@ -188,7 +188,7 @@ namespace SDEKService {
             if (!\function_exists('simplexml_load_string')) {
                 return array('error' => 'No php simplexml-library installed on server');
             }
-
+            $mode = $this->controller->getRequestValue('mode');
             $langPart = $this->controller->getRequestValue('lang') ? '&lang=' . $this->controller->getRequestValue('lang') : '';
             $request = $this->sendCurlRequest('https://integration.cdek.ru/pvzlist/v1/xml?type=ALL' . $langPart);
 
@@ -196,8 +196,14 @@ namespace SDEKService {
                 $xml = \simplexml_load_string($request['result']);
 
                 $arList = array('PVZ' => array(), 'CITY' => array(), 'REGIONS' => array(), 'CITYFULL' => array(), 'COUNTRIES' => array());
-
                 foreach ($xml as $key => $val) {
+
+                    if ($mode !== 'all') {
+                        if (strtolower($val['Type']) !== $mode) {
+                            continue;
+                        }
+                    }
+
 
                     if (($country = $this->controller->getRequestValue('country'))
                         && $country !== 'all'
@@ -207,6 +213,7 @@ namespace SDEKService {
 
                     $cityCode = (string)$val['CityCode'];
                     $type = 'PVZ';
+
                     $city = (string)$val['City'];
                     if (strpos($city, '(') !== false) {
                         $city = \trim(\mb_substr($city, 0, \strpos($city, '(')));
@@ -233,6 +240,8 @@ namespace SDEKService {
                         'AddressComment' => (string)$val['AddressComment'],
                         'CityCode' => (string)$val['CityCode'],
                     );
+
+
                     if ($val->WeightLimit) {
                         $arList[$type][$cityCode][$code]['WeightLim'] = array(
                             'MIN' => (float)$val->WeightLimit['WeightMin'],
@@ -264,11 +273,82 @@ namespace SDEKService {
                         $arList['REGIONS'][$cityCode] = \implode(', ', \array_filter(array((string)$val['RegionName'], (string)$val['CountryName'])));
                     }
 
+//                    (Щербинка)162, (Внуковское)42932, (Воскресенское)13369, (Кокошкино)1690, (Московский)469,
+//                    (Мосрентген)1198, (Сосенское)75809, (Троицк)510, (Киевский)1689, (Первомайское)16338
+
+                    if (in_array($cityCode, [162, 13369, 1690, 469, 1198, 510, 1689, 16338])) {
+                        $arList[$type][$cityCode . "_distance"] = $this->getPvzDistance($cityCode);
+                    }
+
                 }
 
                 \krsort($arList['PVZ']);
 
                 return array('pvz' => $arList);
+            }
+
+            if ($request) {
+
+                return array('error' => 'Wrong answer code from server : ' . $request['code']);
+            }
+            return array('error' => 'Some error PVZ');
+        }
+
+        protected function getPvzDistance($cityCode)
+        {
+            $request = $this->sendCurlRequest('http://office-ext-integration.production.k8s-local.cdek.ru/api/office/getInRadius?cityCode='. $cityCode . '&distance=10000');
+
+            if ($request && $request['code'] === 200) {
+                $pvz = json_decode($request['result']);
+
+                $arList = [];
+
+                foreach ($pvz as $pvzPoint) {
+
+                    $cityCode = $pvzPoint->cityCode;
+                    $code = $pvzPoint->code;
+
+                    $arList[$code] = array(
+                        'Name' => $pvzPoint->name,
+                        'WorkTime' => $pvzPoint->workTime,
+                        'Address' => $pvzPoint->address,
+                        'Phone' => $pvzPoint->phone,
+                        'Note' => $pvzPoint->note,
+                        'cX' => $pvzPoint->coordX,
+                        'cY' => $pvzPoint->coordY,
+                        'Dressing' => ((string)$pvzPoint->isDressingRoom === 'true'),
+                        'Cash' => ((string)$pvzPoint->haveCashless === 'true'),
+                        'Postamat' => (\strtolower($pvzPoint->type) === 'postamat'),
+                        'Station' => $pvzPoint->nearestStation,
+                        'Site' => (string)$pvzPoint->site,
+                        'Metro' => (string)$pvzPoint->metroStation,
+                        'AddressComment' => (string)$pvzPoint->addressComment,
+                        'CityCode' => (string)$cityCode,
+                    );
+                    if ($pvzPoint->weightLimit) {
+                        $arList[$code]['WeightLim'] = array(
+                            'MIN' => (float)$pvzPoint->weightLimit->weightMin,
+                            'MAX' => (float)$pvzPoint->weightLimit->weightMax
+                        );
+                    }
+
+                    $arImgs = array();
+
+                    foreach ($pvzPoint->officeImageList as $img) {
+                        if (strpos($_tmpUrl = (string)$img->url, 'http') === false) {
+                            continue;
+                        }
+                        $arImgs[] = (string)$img->url;
+                    }
+
+                    if (\count($arImgs = \array_filter($arImgs))) {
+                        $arList[$code]['Picture'] = $arImgs;
+                    }
+                    $arList[$code]['Path'] = '';
+                }
+
+
+                return $arList;
             }
 
             if ($request) {
@@ -315,6 +395,18 @@ namespace SDEKService {
         protected function getCityByName($name, $single = true)
         {
             $arReturn = array();
+
+            //При получении полного списка населенных пунктов, название НП Быков записано как "рабочий посёлок Быково"
+            //Для получения данных по этому НП в апи нужно название "Быково село"
+            if ($name === 'рабочий посёлок Быково') {
+                $name = 'Быково село';
+            }
+
+            //При получении полного списка населенных пунктов, название НП Воскресенск записано как "Воскресенск"
+            //Для получения данных по этому НП в апи нужно название "Воскресенск, Московская область"
+            if ($name === 'Воскресенск') {
+                $name = 'Воскресенск, Московская область';
+            }
 
             $result = $this->sendCurlRequest(
                 'http://api.cdek.ru/city/getListByTerm/json.php?q=' . \urlencode($name)
@@ -491,6 +583,8 @@ namespace SDEKService {
                     // end
                     if (\count($arPretend) === 1) {
                         $pretend = \array_pop($arPretend);
+                    } else {
+                        $pretend = $cdekCity['cities'][0];
                     }
                 } else {
                     $pretend = $cdekCity['cities'][0];
@@ -574,6 +668,10 @@ namespace SDEKService {
 
             if ($shipment['cityToId']) {
                 $answer = $this->calculate($shipment);
+
+                if ($this->controller->getValue($shipment, 'currency', 'RUB') !== "RUB") {
+                    $answer['price'] = (string) $answer['priceByCurrency'];
+                }
 
                 if ($answer) {
                     $returnData = array(
@@ -772,6 +870,7 @@ namespace SDEKService {
                         'H_DRESS' => 'С примеркой',
                         'H_POSTAMAT' => 'Постаматы СДЭК',
                         'H_SUPPORT' => 'Служба поддержки',
+                        'H_STREET' => 'Введите название улицы',
                         'H_QUESTIONS' => 'Если у вас есть вопросы, можете<br> задать их нашим специалистам',
                         'ADDRESS_WRONG' => 'Невозможно определить выбранное местоположение. Уточните адрес из выпадающего списка в адресной строке.',
                         'ADDRESS_ANOTHER' => 'Ознакомьтесь с новыми условиями доставки для выбранного местоположения.'
@@ -826,6 +925,7 @@ namespace SDEKService {
                         'H_DRESS' => 'Dressing room',
                         'H_POSTAMAT' => 'Postamats CDEK',
                         'H_SUPPORT' => 'Support',
+                        'H_STREET' => 'Enter street name',
                         'H_QUESTIONS' => 'If you have any questions,<br> you can ask them to our specialists',
 
                         'ADDRESS_WRONG' => 'Impossible to define address. Please, recheck the address.',
