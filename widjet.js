@@ -432,6 +432,7 @@ function ISDEKWidjet(params) {
 			widjet.states.check('JSPCSS');
 		},
 		onStylesLoad: function () {
+			widjet.states.check('JSPCSS');
 			widjet.states.check('styles');
 		},
 		onIPJQLoad: function () {
@@ -580,7 +581,6 @@ function ISDEKWidjet(params) {
 				function: function () {
 					this.service.loadTag(this.options.get('path') + "ipjq.js", 'script', loaders.onIPJQLoad);
 					this.service.loadTag("http://api-maps.yandex.ru/2.1/?lang=ru_RU", 'script', loaders.onYmapsLoad);
-					this.service.loadTag(this.options.get('path') + 'jquery.mCustomScrollbar.css', 'link', loaders.onJSPCSSLoad);
 					this.service.loadTag(this.options.get('path') + 'style.css', 'link', loaders.onStylesLoad);
 
 				}
