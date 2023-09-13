@@ -376,11 +376,8 @@ yx-axis
   -ms-filter: "alpha(opacity=90)";
 }
 
-.ymaps-2-1-56-map-copyrights-promo, .ymaps-2-1-66-map-copyrights-promo, .ymaps-2-1-66-copyrights-pane {
-  display: none !important;
-}
-.ymaps-2-1-56-copyright__wrap {
-  display: none !important;
+.ymaps-2-1-72-map-copyrights-promo, .ymaps-2-1-68-map-copyrights-promo, .ymaps-2-1-68-copyrights-pane, .ymaps-2-1-72-copyrights-pane {
+    display: none !important;
 }
 @-webkit-keyframes scroll-text {
   0% {

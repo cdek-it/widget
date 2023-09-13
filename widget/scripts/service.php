@@ -3,7 +3,7 @@ header('Access-Control-Allow-Origin: *');
 error_reporting(0);
 ISDEKservice::setTarifPriority(
 	array(233, 137, 139, 16, 18, 11, 1, 3, 61, 60, 59, 58, 57, 83),
-	array(234, 136, 138, 15, 17, 62, 63, 5, 10, 12)
+    array(234, 136, 138, 15, 17, 10, 12, 5, 62, 63)
 );
 
 $action = $_REQUEST['isdek_action'];
@@ -49,6 +49,7 @@ class ISDEKservice
 		if (!$data['shipment']['tarifList']) {
 			$data['shipment']['tariffList'] = self::$tarifPriority[$data['shipment']['type']];
 		}
+        if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) $data['shipment']['ref'] = $_SERVER['HTTP_REFERER'];
 
 		if (!$data['shipment']['cityToId']) {
 			$cityTo = self::sendToCity($data['shipment']['cityTo']);
@@ -133,7 +134,7 @@ class ISDEKservice
 				}
 
 				$cityCode = (string)$val['CityCode'];
-				$type = (string)$val['Type'];
+				$type = 'PVZ';
 				$city = (string)$val["City"];
 				if (strpos($city, '(') !== false)
 					$city = trim(substr($city, 0, strpos($city, '(')));
@@ -149,8 +150,8 @@ class ISDEKservice
 					'Note'           => (string)$val['Note'],
 					'cX'             => (string)$val['coordX'],
 					'cY'             => (string)$val['coordY'],
-					'Dressing'       => (string)$val['IsDressingRoom'],
-					'Cash'           => (string)$val['HaveCashless'],
+					'Dressing'       => ($val['IsDressingRoom'] == 'true'),
+					'Cash'           => ($val['HaveCashless'] == 'true'),
 					'Station'        => (string)$val['NearestStation'],
 					'Site'           => (string)$val['Site'],
 					'Metro'          => (string)$val['MetroStation'],
@@ -212,6 +213,8 @@ class ISDEKservice
 			'secure'         => $headers['secure'],
 			'senderCityId'   => $shipment['cityFromId'],
 			'receiverCityId' => $shipment['cityToId'],
+			'ref'            => $shipment['ref'],
+			'widget'         => 1,
 			'tariffId'       => ($shipment['tariffId']) ? $shipment['tariffId'] : false
 		);
 
@@ -310,6 +313,7 @@ class ISDEKservice
 		if ($data) {
 			curl_setopt($ch, CURLOPT_POST, TRUE);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+			curl_setopt($ch, CURLOPT_REFERER, 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME']);
 		}
 		$result = curl_exec($ch);
 		$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -344,8 +348,6 @@ class ISDEKservice
 				'CHOOSE_TYPE_AVAIL' => 'Выберите способ доставки',
 				'CHOOSE_OTHER_CITY' => 'Выберите другой населенный пункт',
 
-				'EST' => 'есть',
-
 				'L_ADDRESS' => 'Адрес пункта выдачи заказов',
 				'L_TIME'    => 'Время работы',
 				'L_WAY'     => 'Как к нам проехать',
@@ -377,8 +379,6 @@ class ISDEKservice
 				'NO_AVAIL'          => 'No shipping methods available',
 				'CHOOSE_TYPE_AVAIL' => 'Choose a shipping method',
 				'CHOOSE_OTHER_CITY' => 'Choose another location',
-
-				'EST' => 'есть',
 
 				'L_ADDRESS' => 'Adress of self-delivery',
 				'L_TIME'    => 'Working hours',

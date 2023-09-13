@@ -378,32 +378,34 @@ function ipolWidjetController(setups) {
 	for (var i in loadingSetups) {
 		if (typeof(setups[i]) !== 'undefined') {
 			for (var j in setups[i]) {
-				if (typeof(setups[i][j]) !== loadingSetups[i]) {
-					logger.error('Illegal ' + i + ' "' + j + '": ' + setups[i][j]);
-				} else {
-					switch (i) {
-						case 'options' :
-							options.options[j] = service.cloneObj(setups.options[j]);
-							break;
-						case 'states'  :
-							states.states[j] = service.cloneObj(setups.states[j]);
-							break;
-						case 'loaders' :
-							loaders[j] = setups.loaders[j];
-							break;
-						case 'events'  :
-							bindes.events[setups.events[j]] = [];
-							break;
-						case 'stages'  :
-							if (typeof(setups.stages[j].states) !== 'object' || typeof(setups.stages[j].function) !== 'function') {
-								logger.error('Illegal stage "' + j + '": ' + setups[i][j]);
-							} else {
-								states.states[j] = service.cloneObj(setups.stages[j].states);
-								loaders[j] = setups.stages[j].function;
-							}
-							break;
-					}
-				}
+                if (({}).hasOwnProperty.call(setups[i], j)) {
+                    if (typeof(setups[i][j]) !== loadingSetups[i]) {
+                        logger.error('Illegal ' + i + ' "' + j + '": ' + setups[i][j]);
+                    } else {
+                        switch (i) {
+                            case 'options' :
+                                options.options[j] = service.cloneObj(setups.options[j]);
+                                break;
+                            case 'states'  :
+                                states.states[j] = service.cloneObj(setups.states[j]);
+                                break;
+                            case 'loaders' :
+                                loaders[j] = setups.loaders[j];
+                                break;
+                            case 'events'  :
+                                bindes.events[setups.events[j]] = [];
+                                break;
+                            case 'stages'  :
+                                if (typeof(setups.stages[j].states) !== 'object' || typeof(setups.stages[j].function) !== 'function') {
+                                    logger.error('Illegal stage "' + j + '": ' + setups[i][j]);
+                                } else {
+                                    states.states[j] = service.cloneObj(setups.stages[j].states);
+                                    loaders[j] = setups.stages[j].function;
+                                }
+                                break;
+                        }
+                    }
+                }
 			}
 		}
 	}
@@ -1570,11 +1572,11 @@ function ISDEKWidjet(params) {
 					for (var i in pvzList) {
 
 						if (typeof mtypes != 'undefined') {
-							if (typeof mtypes.dress != 'undefined' && pvzList[i].Dressing != LANG.get('EST')) {
+							if (typeof mtypes.dress != 'undefined' && pvzList[i].Dressing != true) {
 								continue;
 							}
 
-							if (typeof mtypes.cash != 'undefined' && pvzList[i].Cash != LANG.get('EST')) {
+							if (typeof mtypes.cash != 'undefined' && pvzList[i].Cash != true) {
 								continue;
 							}
 						}
