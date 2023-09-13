@@ -331,11 +331,6 @@ class ISDEKservice
 
 	protected static function requestPVZ()
 	{
-	    $timer = microtime(true);
-        $memory = [
-            'start' => round(memory_get_usage() / 1024),
-            'start_peak' => round(memory_get_peak_usage() / 1024),
-        ];
 		if (!function_exists('simplexml_load_string')) {
 			self::toAnswer(array('error' => 'No php simplexml-library installed on server'));
 			return false;
@@ -372,7 +367,7 @@ class ISDEKservice
 					'cY'             => (string)$val['coordY'],
 					'Dressing'       => ((string)$val['IsDressingRoom'] == 'true'),
 					'Cash'           => ((string)$val['HaveCashless'] == 'true'),
-					'Postamat'       => (strtolower($val['Type']) == 'postomat'),
+					'Postamat'       => (strtolower($val['Type']) == 'postamat'),
 					'Station'        => (string)$val['NearestStation'],
 					'Site'           => (string)$val['Site'],
 					'Metro'          => (string)$val['MetroStation'],
@@ -411,10 +406,6 @@ class ISDEKservice
 			}
 
 			krsort($arList['PVZ']);
-            $memory['finish'] = round(memory_get_usage() / 1024);
-            $memory['finish_peak'] = round(memory_get_peak_usage() / 1024);
-            $memory['timer'] = microtime(true) - $timer;
-            $arList['memory'] = $memory;
 			return $arList;
 		} elseif ($request) {
 			self::toAnswer(array('error' => 'Wrong answer code from server : ' . $request['code']));
@@ -551,12 +542,12 @@ class ISDEKservice
 				'TERM'       => 'Срок',
 				'PRICE'      => 'Стоимость',
 				'DAY'        => 'дн.',
-				'RUB'        => 'руб.',
+				'RUB'        => ' руб.',
 				'NODELIV'    => 'Нет доставки',
 				'CITYSEARCH' => 'Поиск города',
 				'ALL'        => 'Все',
 				'PVZ'        => 'Пункты выдачи',
-				'POSTOMAT'        => 'Постаматы',
+                'POSTOMAT'   => 'Постаматы',
 				'MOSCOW'     => 'Москва',
 				'RUSSIA'     => 'Россия',
 				'COUNTING'   => 'Идет расчет',
@@ -596,7 +587,7 @@ class ISDEKservice
 				'CITYSEARCH' => 'Search for a city',
 				'ALL'        => 'All',
 				'PVZ'        => 'Points of self-delivery',
-                'POSTOMAT'        => 'Postamats',
+                'POSTOMAT'   => 'Postamats',
 				'MOSCOW'     => 'Moscow',
 				'RUSSIA'     => 'Russia',
 				'COUNTING'   => 'Calculation',
