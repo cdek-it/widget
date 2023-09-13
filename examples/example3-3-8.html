@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример работы виджета ПВЗ</title>
+    <script type="text/javascript" id="ISDEKscript" src="../widget/widjet.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    var widjet = new ISDEKWidjet({
+        defaultCity: 'Новосибирск',
+        detailAddress: true,
+        cityFrom: 'Омск',
+        country: 'Россия',
+        inregion: true,
+        link: 'forpvz'
+    });
+</script>
+
+<p>Выбор и расчет точного адреса курьерской доставки</p>
+<div id="forpvz" style="height:600px;"></div>
+
+</body>
+</html>

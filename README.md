@@ -14,11 +14,3 @@ https://docs.google.com/document/d/1Hc_VRQuYwNlIX-2hPMZEhX_kRUX73SgsU7RU0-TP4CQ/
     ```
     zip -r pvzwidget.zip . -x README.md .git/\* .idea/\*
     ```
-
-3. В проект [сайта](https://gitlab.cdek.ru/web/cdek) вносятся изменния в файлы виджета, которые расположены по адресам:
-    ```
-    website/edostavka/template/scripts/*
-    website/edostavka/template/js/widjet.js
-    ```
-
-4. Задача с выкладкой переносится в релиз, чтобы выкладка прошла автоматически. 

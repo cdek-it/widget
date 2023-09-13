@@ -660,7 +660,7 @@ yx-axis
           transition: transform 1s, opacity 1s;
   z-index: 5;
 }
-.CDEK-widget__search-box {
+.CDEK-widget__search-box, .CDEK-widget__courier-address__item {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -682,7 +682,7 @@ yx-axis
 .CDEK-widget__search-box > svg .path {
   fill: #333333;
 }
-.CDEK-widget__search-box input {
+.CDEK-widget__search-box input, .CDEK-widget__courier-address__item input{
   outline: none;
   border: none;
   color: #333;
@@ -738,36 +738,36 @@ yx-axis
 .CDEK-widget__search-list ul li:hover {
   background: #e2efdf;
 }
-.CDEK-widget__search-list ul li:hover::after {
+.CDEK-widget__search-list ul li:hover::after{
   background: #e2efdf;
   box-shadow: 0 0 46px 29px #e2efdf;
 }
 .CDEK-widget__search-list ul li.focus,
-.CDEK-widget__search-list ul li:focus {
+.CDEK-widget__search-list ul li:focus{
   background: #e2efdf;
 }
 .CDEK-widget__search-list ul li.focus::after,
-.CDEK-widget__search-list ul li:focus::after {
+.CDEK-widget__search-list ul li:focus::after{
   background: #e2efdf;
   box-shadow: 0 0 46px 29px #e2efdf;
 }
-.CDEK-widget__search-list ul li p {
+.CDEK-widget__search-list ul li p{
   margin: 0;
   line-height: 1;
 }
-.CDEK-widget__search-list ul li p.CDEK-widget__search-list__city-details {
+.CDEK-widget__search-list ul li p.CDEK-widget__search-list__city-details{
   font-size: 11px;
   color: #999;
   margin-top: 2px;
 }
-.CDEK-widget__search-list ul li p.CDEK-widget__search-list__city-name {
+.CDEK-widget__search-list ul li p.CDEK-widget__search-list__city-name{
   font-size: 15px;
 }
-.CDEK-widget__search-list ul li.no-active {
+.CDEK-widget__search-list ul li.no-active{
   opacity: 0;
   height: 0;
 }
-.CDEK-widget__search-list ul li::after {
+.CDEK-widget__search-list ul li::after{
   content: '';
   display: block;
   height: 40px;
@@ -778,14 +778,17 @@ yx-axis
   right: 0;
   box-shadow: 0 0 46px 29px #fff;
 }
-.CDEK-widget__search-list__box {
+.CDEK-widget__search-list__box,
+.CDEK-widget__address-list__box {
   overflow: hidden;
   max-height: 420px;
 }
-.CDEK-widget__search-list__box .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+.CDEK-widget__search-list__box .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,
+.CDEK-widget__address-list__box .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
   width: 6px;
 }
-.CDEK-widget__search-list__box .mCSB_inside > .mCSB_container {
+.CDEK-widget__search-list__box .mCSB_inside > .mCSB_container,
+.CDEK-widget__address-list__box .mCSB_inside > .mCSB_container {
   margin-right: 0;
 }
 @media screen and (max-width: 395px) {
@@ -814,7 +817,24 @@ yx-axis
           transform: rotateX(91deg);
   opacity: 0;
 }
-.CDEK-widget__delivery-type__title {
+.CDEK-widget__courier-address__box{
+  opacity: 1;
+  -webkit-transform: rotateX(0deg);
+          transform: rotateX(0deg);
+  -webkit-transform-origin: top;
+      -ms-transform-origin: top;
+          transform-origin: top;
+  -webkit-transition: opacity 0.5s ease-in, -webkit-transform 0.6s linear;
+          transition: opacity 0.5s ease-in, transform 0.6s linear;
+  width: 100%;
+  position: absolute;
+}
+.CDEK-widget__courier-address__box_close{
+  -webkit-transform: rotateX(91deg);
+          transform: rotateX(91deg);
+  opacity: 0;
+}
+.CDEK-widget__delivery-type__title, .CDEK-widget__courier-address__title{
   width: 100%;
   background: rgba(255, 255, 255, 0.7);
   color: #333333;
@@ -884,7 +904,7 @@ yx-axis
 .CDEK-widget__delivery-type__item-details svg .path {
   fill: #333333;
 }
-.CDEK-widget__delivery-type__button {
+.CDEK-widget__delivery-type__button, .CDEK-widget__courier-address__button {
   background: #b9b9b9;
   border: none;
   width: 40px;
@@ -961,6 +981,28 @@ yx-axis
 .CDEK-widget__delivery-type .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
   background-color: #b8b8b8;
   width: 5px;
+}
+.CDEK-widget__courier-address__item {
+  background: rgba(255, 255, 255, 0.7);
+  width: 100%;
+  margin-top: 5px;
+  cursor: pointer;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+.CDEK-widget__courier-address__item input{
+  margin-left: 31px;
+}
+.CDEK-widget__courier-address__item > ymaps{
+  left: 0px !important;
+  width: 300px !important;
+}
+[class*="ymaps"][class*="search__suggest-item"]{
+  white-space: normal !important;
+}
+.CDEK-widget__courier-address button.allowed {
+  background: #50a631;
+  color:white;
 }
 .CDEK-widget__sidebar {
   width: 60px;
@@ -1437,6 +1479,10 @@ svg .CDEK-widget__logo-e {
   overflow: hidden;
   -webkit-transition: all 0.4s;
           transition: all 0.4s;
+}
+.CDEK-widget__baloon .CDEK-widget__choose {
+  color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.5);
 }
 .CDEK-widget__choose::after {
   content: '';
