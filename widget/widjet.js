@@ -586,7 +586,7 @@ function ISDEKWidjet(params) {
                 hint: 'Value must be bool (true / false)'
 			},
 			apikey: {
-				value: 'ea83aee9-5073-407d-8ebb-a9bc2770cd09',
+				value: 'f4e034c2-8c37-4168-8b97-99b6b3b268d7',
 				check: function (wat) {
 					return (typeof(wat) === 'string');
 				},
@@ -1515,7 +1515,7 @@ function ISDEKWidjet(params) {
 					'tarif': CALCULATION.profiles.courier.tarif
 				});
 
-				if (!template.ui.addressSearch.ifOn() && !widjet.options.get('link')) {
+				if (!template.ui.active && !widjet.options.get('link')) {
 					this.close();
 				} else {
 					if(template.ui.addressSearch.ifOn()) {
@@ -1880,14 +1880,14 @@ function ISDEKWidjet(params) {
 								continue;
 							}
 						}
-						let img = widjet.options.get('path') + 'images/sdekNActive.png';
-						let imgActive = widjet.options.get('path') + 'images/sdekActive.png';
+						let img = widjet.options.get('path') + ((pvzList[i].Postamat != true) ? 'images/sdekNActive.png' : 'images/postomatNActive.png');
+						let imgActive = widjet.options.get('path') + ((pvzList[i].Postamat != true) ? 'images/sdekActive.png' : 'images/postomatActive.png');
 
 						pvzList[i].placeMark = new ymaps.Placemark([pvzList[i].cY, pvzList[i].cX], {}, {
 							iconLayout: 'default#image',
 							iconImageHref: img,
-							iconImageSize: [40, 43],
-							iconImageOffset: [-10, -31]
+							iconImageSize: [30, 40],
+							iconImageOffset: [-10, -30]
 						});
 
 						geoMarks.push(pvzList[i].placeMark);

@@ -1,3 +1,9 @@
+2.5.3 / 2021-12-14
+==================
+* Fixed the problem of closing the widget when choosing delivery by courier
+* Added new icons for postamat
+* Fixed search by address for some regions, for example Yakutia
+
 2.5.2 / 2021-04-20
 ==================
 

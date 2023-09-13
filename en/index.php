@@ -98,7 +98,7 @@ Key features of the widget:
 </ul>
 
 To connect the widget, you need to add the code to the desired page (it is recommended to place it inside the &lt;head&gt; tag):
-<pre>&lt;script id="ISDEKscript" type="text/javascript" src="https://widget.cdek.ru/widget/widjet.js" charset="utf-8"&gt;&lt;/script&gt;</pre>
+<pre>&lt;script id="ISDEKscript" type="text/javascript" src="https://your.site/path-of-widget-on-your-site/widjet.js" charset="utf-8"&gt;&lt;/script&gt;</pre>
 
 And also copy the <a href="https://widget.cdek.ru/pvzwidget.zip">service.php</a> file to your website,
 in which you can make settings in accordance with your integration data.
@@ -115,10 +115,10 @@ And in lines 17 and 20, indicate the account for the integration in order to rec
 <pre>
     /** Вставьте свой аккаунт\идентификатор для интеграции */
     /** Put your account for integration here */
-    "ACCOUNT_FROM_INTEGRATION",
+    'ACCOUNT_FROM_INTEGRATION',
     /** Вставьте свой пароль для интеграции */
     /** Put your password for integration here */
-    "SECURE_PASSWORD_FROM_INTEGRATION"
+    'SECURE_PASSWORD_FROM_INTEGRATION'
 </pre>
 
 To display the widget on your site, you need to create a javascript handler for the widget:

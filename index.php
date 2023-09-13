@@ -98,7 +98,7 @@
 </ul>
 
 Для подключения виджета необходимо на нужную страницу добавить код (рекомендуется его расположить внутри тега &lt;head&gt;):
-<pre>&lt;script id="ISDEKscript" type="text/javascript" src="https://widget.cdek.ru/widget/widjet.js" charset="utf-8"&gt;&lt;/script&gt;</pre>
+<pre>&lt;script id="ISDEKscript" type="text/javascript" src="https://ваш.сайт/путь_к_файлу/widjet.js" charset="utf-8"&gt;&lt;/script&gt;</pre>
 
 А также скопировать к себе на сайт файл <a href="https://widget.cdek.ru/pvzwidget.zip">service.php</a>, в котором произвести настройки в соответствии с вашими данными по интеграции.
 Например, в строчках 11 и 14 указать используемые тарифы:
@@ -114,10 +114,10 @@
 <pre>
     /** Вставьте свой аккаунт\идентификатор для интеграции */
     /** Put your account for integration here */
-    "ACCOUNT_FROM_INTEGRATION",
+    'ACCOUNT_FROM_INTEGRATION',
     /** Вставьте свой пароль для интеграции */
     /** Put your password for integration here */
-    "SECURE_PASSWORD_FROM_INTEGRATION"
+    'SECURE_PASSWORD_FROM_INTEGRATION'
 </pre>
 
 Для отображения виджета на вашем сайте необходимо создать javascript-обработчик для виджета:

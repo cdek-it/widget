@@ -437,6 +437,7 @@ namespace SDEKService {
                         $_arPretend = array();
                         foreach ($arPretend as $arCity) {
                             $possRegion = \str_replace($this->getRegion(), '', \mb_strtolower(\trim($arCity['region'])));
+                            $possRegion = \str_replace('  ', ' ', $possRegion);
                             if (!$possRegion || \mb_stripos($possRegion, \str_replace($this->getRegion(), '', $arStages['region'])) !== false) {
                                 $_arPretend [] = $arCity;
                             }
@@ -510,7 +511,7 @@ namespace SDEKService {
 
         protected function getRegion()
         {
-            return array('автономная область', 'область', 'республика', 'автономный округ', 'округ', 'край', 'обл.');
+            return array('автономная область', 'область', 'республика', 'респ.', 'автономный округ', 'округ', 'край', 'обл.');
         }
 
         protected function getSubRegion()
