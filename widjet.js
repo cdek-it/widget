@@ -1675,6 +1675,7 @@ function ISDEKWidjet(params) {
 				});
 
 				_detailPanel.html(_block);
+				_detailPanel.find('.CDEK-widget__panel-content').mCustomScrollbar();
 			},
 
 			blinkPVZ: function (event) {

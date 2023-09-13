@@ -1,19 +1,21 @@
+<?
+header('Content-Type: text/html; charset=utf-8');
+?>
 <script id="ISDEKscript" type="text/javascript" src="widjet.js"></script>
 <script>
 	var widjet = new ISDEKWidjet({
 		hideMessages: false,
-		defaultCity: 'Омск',
+		defaultCity: 'Новосибирск',
 		cityFrom: 'Омск',
-		<?=$_REQUEST['COUNTRY'] ? "country: '" . $_REQUEST['COUNTRY'] . "'," : ''?>
+		country: 'Россия',
 		choose: true, //скрыть кнопку выбора
 		//path : true,
-		<?= (!$_REQUEST['FULL'] && !$_REQUEST['POPUP']) ? "link: 'qwerty'," : ''?>
-		<?= $_REQUEST['POPUP'] ? "popup: true," : ''?>
+		link: 'forpvz',
 		goods: [{
-			length: 20,
-			width: 20,
-			height: 20,
-			weight: 2
+			length: 10,
+			width: 10,
+			height: 10,
+			weight: 1
 		}],
 		onReady: onReady,
 		onChoose: onChoose,
@@ -47,9 +49,7 @@
 	function onCalculate(wat) {
 		console.log('calculated', wat);
 	}
-</script>
-<? if (!$_REQUEST['FULL'] && !$_REQUEST['POPUP']) { ?>
-    <script>
+
 		addGood = function () {
 			widjet.cargo.add({
 				length: 20,
@@ -57,17 +57,63 @@
 				height: 20,
 				weight: 1
 			});
+            ipjq('#cntItems').html ( parseInt(ipjq('#cntItems').html()) + 1 );
+            ipjq('#weiItems').html ( parseInt(ipjq('#weiItems').html()) + 2 );
 		}
     </script>
-
+<h1>Виджет выбора типа доставки</h1>
+<div style="float:right; width: 200px;">
+    Корзина покупателя:
+    <p> Количество товаров: <span id="cntItems">1</span></p>
+    <p> Вес товара: <span id="weiItems">1</span></p>
     <button onclick="addGood();">Добавить товар</button>
-    <div id="qwerty" style="width:100%; height:500px;"></div>
-<? } else if ($_REQUEST['POPUP']) { ?>
-    <div class="site-container">
-        <button class="CDEK-widget__popup-button" onclick="widjet.open();">Открыть модуль</button>
-    </div>
-<? } ?>
+</div>
+Основные возможности виджета:
+<ul>
+    <li>Выбор города и отображение списка ПВЗ для него</li>
+    <li>Расчет доставки для указанных габаритов</li>
+    <li>Возможность выбора покупателем ПВЗ с передачей в функцию-обработчик всех необходимых для обработки данных</li>
+    <li>Вывод детальной информации для каждого ПВЗ</li>
+    <li>Гибкая настройка отображения и простое подключение виджета</li>
+    <li>Вывод детальной информации для каждого ПВЗ</li>
+</ul>
 
+Для подключения виджета необходимо на нужную страницу добавить код (рекомендуется его расположить внутри тега &lt;head&gt;):
+<pre>&lt;script id="ISDEKscript" type="text/javascript" src="http://cdek.ru/url/widjet.js"&gt;&lt;/script&gt;</pre>
+
+А также скопировать к себе на сайт файл <a href="http://cdek.ru/url/widgetdocs.zip">service.php</a>, в котором произвести настройки в соотвествии с вашими данными по интегарции.
+Например, в строчках 3-4 указать используемые тарифы:
+<pre>
+ISDEKservice::setTarifPriority(
+    array(233, 137, 139, 16, 18, 11, 1, 3, 61, 60, 59, 58, 57, 83),
+    array(234, 136, 138, 15, 17, 62, 63, 5, 10, 12)
+);
+</pre>
+А в строчках 15-16 указать аккаунт к интеграции, чтобы получать стоимость доставки в соответствии с вашим договором:
+<pre>
+    protected static $account = 'ACCOUNT_FROM_INTEGRATION';
+    protected static $key     = 'SECURE_PASSWORD_FROM_INTEGRATION';</pre>
+
+Для отображения виджета на вашем сайте необходимо создать javascript-обработчик для виджета:
+<pre>&lt;script type=’text/javascript’&gt;
+    var ourWidjet = new ISDEKWidjet ({
+        defaultCity: 'Новосибирск', //какой город отображается по умолчанию
+        cityFrom: 'Омск', // из какого города будет идти доставка
+        country: 'Россия', // можно выбрать страну, для которой отображать список ПВЗ
+        link: 'forpvz' // id элемента страницы, в который будет вписан виджет
+        servicepath: 'http://yoursite.net/service.php' //
+    });
+&lt;/script&gt;</pre>
+
+Ниже представлена часть возможностей виджета. С более подробными возможностями можно ознакомиться, <a href="http://cdek.ru/url/widgetdocs.zip">скачав документацию к виджету
+</a>
+
+
+
+<br/>
+<br/>
+
+    <div id="forpvz" style="width:100%; height:600px;"></div>
 <div id="service_message"></div>
 
 <script>
