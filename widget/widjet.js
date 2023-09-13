@@ -1339,19 +1339,30 @@ function ISDEKWidjet(params) {
 
 				this.makeADAPT();
 			},
+			loadedCities: [],
+			setDefaultCities() {
+				const list = ipjq(IDS.get('city_list'));
+				list.empty();
+
+				const citiesToShow = this.loadedCities.slice(0, 7);
+				citiesToShow.forEach(el => {
+					const _block = HTML.getBlock('city', el);
+					list.prepend(_block)
+				})
+			},
 
 			loadCityList: function (data) {
+				this.loadedCities = []
 
-				_list = ipjq(IDS.get('city_list'));
-				for (var i in data) {
-					_block = HTML.getBlock('city', {
+				for (const i in data) {
+					this.loadedCities.push({
 						'CITYID': i,
 						'CITYNAME': data[i],
 						'CITY_DETAILS': (typeof DATA.regions.collection[i] != 'undefined') ? DATA.regions.collection[i] : '&nbsp;'
-					});
-					_list.prepend(_block);
+					})
 				}
 
+				this.setDefaultCities()
 			},
 
 			updatePrices: function (obPrices) {
@@ -1683,9 +1694,6 @@ function ISDEKWidjet(params) {
 					template.ymaps.map.container.fitToViewport();
 				}
 				this.active = true;
-				if (ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search-list__box li').length >= 10) {
-					ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__search-list__box").mCustomScrollbar();
-				}
 			},
 
 			close: function () {
@@ -1880,8 +1888,8 @@ function ISDEKWidjet(params) {
 								continue;
 							}
 						}
-						let img = widjet.options.get('path') + ((pvzList[i].Postamat != true) ? 'images/sdekNActive.png' : 'images/postomatNActive.png');
-						let imgActive = widjet.options.get('path') + ((pvzList[i].Postamat != true) ? 'images/sdekActive.png' : 'images/postomatActive.png');
+						let img = widjet.options.get('path') + ((pvzList[i].Postamat != true) ? 'images/sdekActive.png' : 'images/postomatActive.png');
+						let imgActive = widjet.options.get('path') + ((pvzList[i].Postamat != true) ? 'images/sdekNActive.png' : 'images/postomatNActive.png');
 
 						pvzList[i].placeMark = new ymaps.Placemark([pvzList[i].cY, pvzList[i].cX], {}, {
 							iconLayout: 'default#image',
@@ -2006,9 +2014,6 @@ function ISDEKWidjet(params) {
 				}
 				ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__panel-content").mCustomScrollbar();
 				ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__delivery-type").mCustomScrollbar();
-				if (ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search-list__box li').length >= 10) {
-					ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__search-list__box").mCustomScrollbar();
-				}
 
 				this.readyToBlink = true;
 			},
@@ -2142,7 +2147,7 @@ function ISDEKWidjet(params) {
                 template.ymaps.map.geoObjects.add(bln);
                 return bln;
             },
-			
+
 			killBaloon : function (wat) {
 				template.ymaps.map.geoObjects.remove(wat);
             }
@@ -2164,7 +2169,6 @@ function ISDEKWidjet(params) {
 	};
 
 	widjet.sdekWidgetEvents = function () {
-
 		ipjq('.CDEK-widget__popup__close-btn').off('click').on('click', function () {
 			ipjq(this).closest('.CDEK-widget__popup-mask').hide();
 		});
@@ -2291,11 +2295,15 @@ function ISDEKWidjet(params) {
 			}
 		}).on('focusin', '.CDEK-widget__search-box input[type=text]', function () {
 			ipjq(this).val('');
+			template.html.setDefaultCities()
+
 			if (ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__delivery-type').hasClass('CDEK-widget__delivery-type_close')) {
 				ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search-list ul').addClass('open')
 					.find('li').removeClass('no-active');
+
 				return
 			}
+
 			ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__delivery-type').addClass('CDEK-widget__delivery-type_close');
 			setTimeout(function () {
 				ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search-list ul').addClass('open')
@@ -2306,61 +2314,50 @@ function ISDEKWidjet(params) {
 		}).on('keydown', '.CDEK-widget__search-box input[type=text]', function (e) {
 			var $liActive = ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search-list ul li:not(.no-active)');
 			var $liFocus = $liActive.filter('.focus');
+
 			if (e.keyCode === 40) {
 				if ($liFocus.length == 0) {
 					$liActive.first().addClass('focus');
-					ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__search-list__box").mCustomScrollbar('scrollTo', $liActive.first(), {
-						scrollInertia: 300
-					});
 				} else {
 					$liFocus.removeClass('focus');
 
 					if ($liFocus.nextAll().filter(':not(.no-active)').eq(0).length != 0) {
 						$liFocus.nextAll().filter(':not(.no-active)').eq(0).addClass('focus');
-						ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__search-list__box").mCustomScrollbar('scrollTo', $liFocus.next($liActive), {
-							scrollInertia: 300
-						});
 					} else {
 						$liActive.first().addClass('focus');
-						ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__search-list__box").mCustomScrollbar('scrollTo', $liActive.first(), {
-							scrollInertia: 300
-						});
 					}
 				}
 			}
 			if (e.keyCode === 38) {
 				if ($liFocus.length == 0) {
 					$liActive.last().addClass('focus');
-					ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__search-list__box").mCustomScrollbar('scrollTo', $liActive.last(), {
-						scrollInertia: 300
-					});
 				} else {
 					$liFocus.removeClass('focus');
+
 					if ($liFocus.prevAll().filter(':not(.no-active)').eq(0).length != 0) {
 						$liFocus.prevAll().filter(':not(.no-active)').eq(0).addClass('focus');
-						ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__search-list__box").mCustomScrollbar('scrollTo', $liFocus.prev($liActive), {
-							scrollInertia: 300
-						});
 					} else {
 						$liActive.last().addClass('focus');
-						ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__search-list__box").mCustomScrollbar('scrollTo', $liActive.last(), {
-							scrollInertia: 300
-						});
 					}
 				}
 			}
 		}).on('keyup', '.CDEK-widget__search-box input[type=text]', function (e) {
+			const currentValue = ipjq(this).val();
+			let filter
+
 			try {
-				var filter = new RegExp('^(' + ipjq(this).val() + ')+.*', 'i');
+				filter = new RegExp('^(' + currentValue + ')+.*', 'i');
 			} catch (e) {
-				var filter = '';
+				filter = '';
 			}
 
 			var $li = ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search-list ul li');
+			const $ul = ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search-list ul');
 
 			if (e.keyCode === 13) {
 				var $liActive = $li.not('.no-active');
 				var $liFocus = $liActive.filter('.focus');
+
 				if ($liFocus.length == 0) {
 					template.controller.selectCity();
 				} else {
@@ -2370,23 +2367,40 @@ function ISDEKWidjet(params) {
 				return
 			}
 
-			if (filter != '') {
-				$matches = $li.filter(function () {
-					return filter.test(ipjq(this).find('.CDEK-widget__search-list__city-name').text().replace(/[^\wа-яё\s-]+/gi, ""));
-				});
+			if (filter !== '') {
+				const oldIds = []
+				// keyDown 	событие может добавить класс focus элементу
+				// но keyUp тут же удаляет старые дом элементы и создает новые
+				// Проверка на совпадение массивов для отрисовки нужна чтобы лишний раз не
+				// перерисовывать список городов
+				$ul.children().each((i, el) => {
+					oldIds.push(el.getAttribute('data-cityid'))
+				})
 
-				$li.not($matches).addClass('no-active').removeClass('focus');
-				if ($matches.length == 0) {
-					$li.parent('ul').removeClass('open');
-				} else if (!$li.parent('ul').hasClass('open')) {
-					$li.parent('ul').addClass('open');
+				const citiesToShow = template.html.loadedCities.filter((el) => filter.test(el['CITYNAME'].replace(/[^\wа-яё\s-]+/gi, ""))).slice(0, 7);
+				const currentIds = citiesToShow.map((el) => el['CITYID'])
+
+
+				if (citiesToShow.length === 0) {
+					$ul.removeClass('open');
+				} else if (!$ul.hasClass('open')) {
+					$ul.addClass('open');
 				}
 
-				$matches.each(function (index, el) {
-					if (ipjq(el).hasClass('no-active')) {
-						ipjq(el).removeClass('no-active');
+				if (oldIds.length === currentIds.length) {
+					if (oldIds.sort().toString() === currentIds.sort().toString()) {
+						return;
 					}
-				});
+				}
+
+				$ul.empty()
+
+				citiesToShow.forEach((el, idx) => {
+					const _block = HTML.getBlock('city', el);
+					const li = ipjq(_block)
+					li.removeClass('no-active');
+					$ul.prepend(li)
+				})
 			} else {
 				$li.removeClass('no-active');
 			}

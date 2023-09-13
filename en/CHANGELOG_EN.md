@@ -1,3 +1,7 @@
+2.5.4 / 2022-06-10
+==================
+* Optimized search by city, now it does not crash in mobile phone browsers
+  
 2.5.3 / 2021-12-14
 ==================
 * Fixed the problem of closing the widget when choosing delivery by courier
