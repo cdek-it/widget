@@ -516,7 +516,7 @@ function ISDEKWidjet(params) {
 			link: {
 				value: params.link,
 				check: function (wat) {
-					return (ipjq('#' + wat).length);
+					return wat === false ? true : (ipjq('#' + wat).length > 0);
 				},
 				setting: 'afterJquery',
 				hint: 'No element whit this id to put the widjet'
@@ -1320,15 +1320,15 @@ function ISDEKWidjet(params) {
 
                 if (widjet.options.get('hidecash')) {
                     var temp = [];
-                    temp.push(htmlka.slice(0, 132));
-                    temp.push(htmlka.slice(1349));
+                    temp.push(htmlka.slice(0, 1476));
+                    temp.push(htmlka.slice(2693));
                     htmlka = temp.join("");
                 }
 
 
                 if (widjet.options.get('hidedress')) {
                     var temp = [];
-                    temp.push(htmlka.slice(0, ( widjet.options.get('hidecash') ? 132:1349)));
+                    temp.push(htmlka.slice(0, ( widjet.options.get('hidecash') ? 1476 : 2693)));
                     temp.push(htmlka.slice(htmlka.indexOf('<hr>')));
                     htmlka = temp.join("");
                 }
