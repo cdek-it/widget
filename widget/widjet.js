@@ -499,6 +499,14 @@ function ISDEKWidjet(params) {
 				setting: 'start',
 				hint: 'Value must be string (countryname)'
 			},
+            lang: {
+                value: 'rus',
+                check: function (wat) {
+                    return (typeof(wat) === 'string');
+                },
+                setting: 'start',
+                hint: 'Value must be string (laguage name)'
+            },
 			link: {
 				value: params.link,
 				check: function (wat) {
@@ -513,7 +521,7 @@ function ISDEKWidjet(params) {
 					return (this.city.check(name) !== false);
 				},
 				setting: 'dataLoaded',
-				hint: 'City wasn\'t founded'
+				hint: 'Default City wasn\'t founded'
 			},
 			choose: {
 				value: true,
@@ -523,6 +531,30 @@ function ISDEKWidjet(params) {
 				setting: 'start',
 				hint: 'Value must be bool (true / false)'
 			},
+            hidedress: {
+                value: false,
+                check: function (wat) {
+                    return (typeof(wat) === 'boolean');
+                },
+                setting: 'start',
+                hint: 'Value must be bool (true / false)'
+            },
+            hidecash: {
+                value: false,
+                check: function (wat) {
+                    return (typeof(wat) === 'boolean');
+                },
+                setting: 'start',
+                hint: 'Value must be bool (true / false)'
+            },
+            hidedelt: {
+                value: false,
+                check: function (wat) {
+                    return (typeof(wat) === 'boolean');
+                },
+                setting: 'start',
+                hint: 'Value must be bool (true / false)'
+            },
 			popup: {
 				value: false,
 				check: function (wat) {
@@ -561,7 +593,7 @@ function ISDEKWidjet(params) {
 					return (this.city.check(name) !== false);
 				},
 				setting: 'dataLoaded',
-				hint: 'City wasn\'t founded'
+				hint: 'City From wasn\'t founded'
 			}
 		},
 		events: [
@@ -580,7 +612,8 @@ function ISDEKWidjet(params) {
 				},
 				function: function () {
 					this.service.loadTag(this.options.get('path') + "ipjq.js", 'script', loaders.onIPJQLoad);
-					this.service.loadTag("http://api-maps.yandex.ru/2.1/?lang=ru_RU", 'script', loaders.onYmapsLoad);
+					var yalang = (this.options.get('lang') == 'rus') ? 'ru_RU' : 'en_GB';
+					this.service.loadTag("https://api-maps.yandex.ru/2.1.66/?lang="+yalang, 'script', loaders.onYmapsLoad);
 					this.service.loadTag(this.options.get('path') + 'style.css', 'link', loaders.onStylesLoad);
 
 				}
@@ -597,12 +630,12 @@ function ISDEKWidjet(params) {
 
 					ipjq.getJSON(
 						widjet.options.get('servicepath'),
-						{isdek_action: 'getPVZ', country: this.options.get('country')},
+						{isdek_action: 'getPVZ', country: this.options.get('country'), lang: this.options.get('lang')},
 						DATA.parsePVZFile
 					);
 					ipjq.getJSON(
 						widjet.options.get('servicepath'),
-						{isdek_action: 'getLang'},
+						{isdek_action: 'getLang', lang: this.options.get('lang')},
 						LANG.write
 					);
 
@@ -673,7 +706,8 @@ function ISDEKWidjet(params) {
 					cityFrom: false
 				},
 				function: function () {
-					DATA.city.set(widjet.options.get('defaultCity'));
+                    if (widjet.options.get('defaultCity') != "auto")
+                        DATA.city.set(widjet.options.get('defaultCity'));
 					template.readyA = true;
 					template.html.loadCityList(DATA.city.collection);
 					if (!widjet.popupped) {
@@ -790,6 +824,7 @@ function ISDEKWidjet(params) {
 
 			checkCity: function (intCityID) {
 				return (typeof(this.collection[intCityID]) !== 'undefined') || this.indexOfSome(intCityID, this.collection) > -1;
+				// return true;
 			},
 			getName: function (intCityID) {
 				if (this.checkCity(intCityID)) {
@@ -822,6 +857,8 @@ function ISDEKWidjet(params) {
 
 		PVZ: {
 			collection: {},
+            bycoord: {},
+			bycoordCur: 0,
 
 			check: function (intCityID) {
 				return (
@@ -842,7 +879,7 @@ function ISDEKWidjet(params) {
 			getCurrent: function () {
 
 				return this.getCityPVZ(DATA.city.current);
-			}
+                    }
 		},
 
 		parsePVZFile: function (data) {
@@ -873,13 +910,6 @@ function ISDEKWidjet(params) {
 						DATA.city.collection[pvzCity] = data.pvz.CITY[pvzCity];
 						DATA.city.collectionFull[pvzCity] = data.pvz.CITYFULL[pvzCity];
 					}
-				}
-
-				if (DATA.city.indexOfSome(widjet.options.get('defaultCity'), DATA.city.collection) === false) {
-					_ci = Object.keys(DATA.city.collection)[0];
-					widjet.options.set(DATA.city.collection[_ci], 'defaultCity');
-					DATA.city.set(_ci);
-					ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search input[type=text]').val(DATA.city.getName(_ci));
 				}
 
 				loaders.onPVZLoad();
@@ -945,8 +975,8 @@ function ISDEKWidjet(params) {
 			if (typeof(timestamp) !== 'undefined') {
 				data.timestamp = timestamp;
 			}
-
-			ipjq.getJSON(
+            if (DATA.city.current)
+                ipjq.getJSON(
 				widjet.options.get('servicepath'),
 				{isdek_action: 'calc', shipment: data},
 				CALCULATION.onCalc
@@ -996,7 +1026,8 @@ function ISDEKWidjet(params) {
 				}
 				widjet.binders.trigger('onCalculate', {
 					profiles: widjet.service.cloneObj(CALCULATION.profiles),
-					city: DATA.city.current
+					city: DATA.city.current,
+					cityName: DATA.city.getName(DATA.city.current)
 				});
 			}
 		}
@@ -1165,7 +1196,27 @@ function ISDEKWidjet(params) {
 				if (!widjet.options.get('choose')) {
 					ipjq(IDS.get('cdek_widget_cnt')).addClass('nochoose');
 				}
-				ipjq(IDS.get('sidebar')).html(HTML.getBlock('sidebar'));
+				var htmlka = HTML.getBlock('sidebar');
+
+                if (widjet.options.get('hidecash')) {
+                    var temp = [];
+                    temp.push(htmlka.slice(0, 132));
+                    temp.push(htmlka.slice(1349));
+                    htmlka = temp.join("");
+                }
+
+
+                if (widjet.options.get('hidedress')) {
+                    var temp = [];
+                    temp.push(htmlka.slice(0, ( widjet.options.get('hidecash') ? 132:1349)));
+                    temp.push(htmlka.slice(htmlka.indexOf('<hr>')));
+                    htmlka = temp.join("");
+                }
+                if (widjet.options.get('hidedelt')) {
+                    ipjq(IDS.get('cdek_delivery_types')).hide();
+                }
+                ipjq(IDS.get('sidebar')).html(htmlka);
+
 				this.makeADAPT();
 			},
 
@@ -1284,6 +1335,12 @@ function ISDEKWidjet(params) {
 			},
 
 			choosePVZ: function (id) {
+                var qq= ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__delivery-type__item:last');
+				if (!qq.hasClass('active')) {
+                    qq.attr('class', 'CDEK-widget__delivery-type__item').addClass('active');
+                    ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__delivery-type__item:first').attr('class', 'CDEK-widget__delivery-type__item').removeClass('active');
+                    ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__delivery-type__button').attr('class', 'CDEK-widget__delivery-type__button').addClass('CDEK-widget__delivery-type__button_pvz');
+                }
 				var PVZ = DATA.PVZ.getCurrent();
 				widjet.binders.trigger('onChoose', {
 					'id': id,
@@ -1291,7 +1348,8 @@ function ISDEKWidjet(params) {
 					'price': CALCULATION.profiles.pickup.price,
 					'term': CALCULATION.profiles.pickup.term,
 					'tarif': CALCULATION.profiles.pickup.tarif,
-					'city': DATA.city.current
+					'city': DATA.city.current,
+                    'cityName': DATA.city.getName(DATA.city.current)
 				});
 				if (!widjet.options.get('link')) {
 					this.close();
@@ -1302,6 +1360,7 @@ function ISDEKWidjet(params) {
 				widjet.binders.trigger('onChooseProfile', {
 					'id': 'courier',
 					'city': DATA.city.current,
+                    'cityName': DATA.city.getName(DATA.city.current),
 					'price': CALCULATION.profiles.courier.price,
 					'term': CALCULATION.profiles.courier.term,
 					'tarif': CALCULATION.profiles.courier.tarif
@@ -1377,6 +1436,60 @@ function ISDEKWidjet(params) {
 
 				var self = this;
 
+                if (city == false) {
+                    ymaps.geolocation.get({}).then(function (result) {
+                        var gdeUser = result.geoObjects.get(0).properties.get('metaDataProperty').GeocoderMetaData.Address.Components;
+                        for (var i = gdeUser.length-1; i >= 0; i--) {
+                            if (gdeUser[i].kind == 'locality') {
+                                city = gdeUser[i].name;
+                                city = city.replace(/город\s|поселок\sгородского\sтипа\s|поселок\s|посёлок\s|деревня\s|село\s/ig, '');
+                                DATA.city.set(city);
+                                if (DATA.city.current !== false) break;
+                            }
+                        }
+                        if (DATA.city.current == false) {
+                            //если город не найден - ищем ближайший по координатам ПВЗ и отображаем в этом городе
+                            gdeUser = result.geoObjects.get(0).geometry._coordinates;
+
+                            var nearestPVZ = {};
+                            var delta = 100;
+                            for (var pvzCity in DATA.PVZ.collection) {
+                                for (var myPvz in DATA.PVZ.collection[pvzCity]) {
+                                    var mpvz = DATA.PVZ.collection[pvzCity][myPvz];
+                                    var deltaGeo = Math.sqrt(Math.pow(mpvz.cY-gdeUser[0],2) + Math.pow(mpvz.cX-gdeUser[1],2));
+                                    if (delta > deltaGeo) {
+                                    	nearestPVZ = mpvz;
+                                    	delta = deltaGeo;
+                                    	city = pvzCity;
+                                    }
+                                }
+                            }
+
+							if (city != false) {
+                                DATA.city.set(city);
+                                city = DATA.city.getName(city);
+							}
+							else {
+                                DATA.city.set('Москва');
+                                city = 'Москва';
+                            }
+                        }
+
+                        widjet.options.set(city, 'defaultCity');
+                        template.controller.calculate();
+                        template.controller.updatePrices();
+                        self.loadMap(DATA.city.current);
+                        ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search input[type=text]').val(city);
+
+                    });
+                }
+                else {
+                    self.loadMap(DATA.city.current);
+                }
+            },
+
+            loadMap: function (city) {
+                var self = this;
 				city = DATA.city.getFullName(city);
 
 				if (typeof DATA.PVZ.getCurrent() === 'object') {
@@ -1396,14 +1509,14 @@ function ISDEKWidjet(params) {
 							center: coords,
 							duration: 300
 						});
-						this.map.controls.add(new ymaps.control.ZoomControl(),
+                        self.map.controls.add(new ymaps.control.ZoomControl(),
 							{
 								position: {
 									left: 12,
 									bottom: 70
 								}
 							});
-						this.map.events.add('boundschange', widjet.hideLoader);
+                        self.map.events.add('boundschange', widjet.hideLoader);
 					} else {
 						self.map.setCenter(coords);
 						self.map.setZoom(10);
@@ -1427,7 +1540,7 @@ function ISDEKWidjet(params) {
 			},
 
 			placeMarks: function (mtypes) {
-				var pvzList = DATA.PVZ.getCurrent();
+				var pvzList =  DATA.PVZ.getCurrent();
 
 				if (typeof pvzList !== 'object') {
 					ipjq(IDS.get('sidebar')).hide();
@@ -1642,40 +1755,40 @@ function ISDEKWidjet(params) {
 			selectMark: function (wat) {
 				var cityPvz = DATA.PVZ.getCurrent();
 
-				this.map.setCenter(template.ymaps.makeUpCenter([cityPvz[wat].cY, cityPvz[wat].cX]));
+                    this.map.setCenter(template.ymaps.makeUpCenter([cityPvz[wat].cY, cityPvz[wat].cX]));
 
-				_detailPanel = ipjq(IDS.get('panel')).find(IDS.get('detail_panel'));
-				_detailPanel.html('');
+                    _detailPanel = ipjq(IDS.get('panel')).find(IDS.get('detail_panel'));
+                    _detailPanel.html('');
 
-				_photoHTML = '';
-				if (typeof cityPvz[wat].Picture != 'undefined') {
-					for (_imgIndex in  cityPvz[wat].Picture) {
-						_photoHTML += HTML.getBlock('image_c', {D_PHOTO: cityPvz[wat].Picture[_imgIndex]});
-					}
-				}
+                    _photoHTML = '';
+                    if (typeof cityPvz[wat].Picture != 'undefined') {
+                        for (_imgIndex in  cityPvz[wat].Picture) {
+                            _photoHTML += HTML.getBlock('image_c', {D_PHOTO: cityPvz[wat].Picture[_imgIndex]});
+                        }
+                    }
 
-				_block = ipjq(HTML.getBlock('panel_details', paramsD = {
-					D_NAME: cityPvz[wat].Name,
-					D_ADDR: cityPvz[wat].Address,
-					D_TIME: cityPvz[wat].WorkTime.replace(new RegExp(',', 'g'), '<br/>'),
-					D_WAY: cityPvz[wat].AddressComment.search('http') == -1 ? cityPvz[wat].AddressComment : '',
-					D_IMGS: _photoHTML,
-				}));
+                    _block = ipjq(HTML.getBlock('panel_details', paramsD = {
+                        D_NAME: cityPvz[wat].Name,
+                        D_ADDR: cityPvz[wat].Address,
+                        D_TIME: cityPvz[wat].WorkTime.replace(new RegExp(',', 'g'), '<br/>'),
+                        D_WAY: cityPvz[wat].AddressComment.search('http') == -1 ? cityPvz[wat].AddressComment : '',
+                        D_IMGS: _photoHTML,
+                    }));
 
-				if (paramsD.D_WAY == '') {
-					_block.find('.CDEK-widget__way').remove();
-				}
+                    if (paramsD.D_WAY == '') {
+                        _block.find('.CDEK-widget__way').remove();
+                    }
 
-				if (paramsD.D_IMGS == '') {
-					_block.find('.sdek_image_block').remove();
-				}
+                    if (paramsD.D_IMGS == '') {
+                        _block.find('.sdek_image_block').remove();
+                    }
 
-				_block.find(IDS.get('choose_button')).on('click', {id: wat}, function (event) {
-					template.controller.choosePVZ(event.data.id);
-				});
+                    _block.find(IDS.get('choose_button')).on('click', {id: wat}, function (event) {
+                        template.controller.choosePVZ(event.data.id);
+                    });
 
-				_detailPanel.html(_block);
-				_detailPanel.find('.CDEK-widget__panel-content').mCustomScrollbar();
+                    _detailPanel.html(_block);
+                    _detailPanel.find('.CDEK-widget__panel-content').mCustomScrollbar();
 			},
 
 			blinkPVZ: function (event) {
@@ -1788,7 +1901,7 @@ function ISDEKWidjet(params) {
 				}
 			}
 		}).on('click', '.CDEK-widget__choose', function () {
-			ipjq(this).addClass('loading');
+			ipjq(this).addClass('widget__loading');
 		});
 		ipjq(IDS.get('cdek_widget_cnt')).on('mousemove', '.CDEK-widget__sidebar-button', function () {
 			if (!ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__panel').hasClass('open')) {
@@ -1995,7 +2108,7 @@ function ISDEKWidjet(params) {
 			template.controller.loadCity();
 		},
 		check: function (name) {
-			DATA.city.checkCity(name)
+			return DATA.city.getId(name);
 		}
 	};
 
@@ -2021,7 +2134,8 @@ function ISDEKWidjet(params) {
 	};
 
 	widjet.calculate = function () {
-		CALCULATION.calculate()
+		CALCULATION.calculate();
+		return CALCULATION.profiles;
 	};
 
 	if (!widjet.options.get('link')) {
@@ -2029,7 +2143,7 @@ function ISDEKWidjet(params) {
 			template.controller.open();
 		};
 		widjet.close = function () {
-			template.controller.open();
+			template.controller.close();
 		};
 	}
 

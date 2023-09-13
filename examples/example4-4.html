@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример работы виджета ПВЗ</title>
+    <script type="text/javascript" src="../widget/widjet.js" id="ISDEKscript" ></script>
+    <style>
+        p {padding: 0 2px; margin: 0;}
+        #forpvz {height: 450px; border: 2px solid coral;}
+        .block {border: 1px solid lightgreen; flex-basis: 33%; margin: 2px; padding: 20px 10px; height:50px; text-align: center;}
+    </style>
+</head>
+<body>
+<p>Виджет для витрины</p>
+
+<script type="text/javascript">
+    var sectionWidjet = new ISDEKWidjet ({
+        link: "forpvz",
+        defaultCity: 'Казань', // будем считать, что клиент из Казани
+        cityFrom: "Бердск",
+        onCalculate: calculated
+    });
+    // сделаем так, чтобы при расчете доставки обновлялась информация в блоке с деталями доставки
+    function calculated(params){
+        ipjq('#delPricePVZ').html(params.profiles.pickup.price + " руб.");
+        ipjq('#delPriceCourier').html(params.profiles.courier.price + " руб.");
+        var cargo=sectionWidjet.cargo.get();
+        var ves = 0;
+        var vesOb = 0;
+        for (var key in cargo) {
+            ves = ves + cargo[key].weight;
+            vesOb = vesOb + ((cargo[key].length * cargo[key].width * cargo[key].height ) / 5000);
+        }
+        ipjq('#ves').html(ves + " кг.");
+        ipjq('#vesob').html(vesOb + " кг.");
+    }
+    // напишем обработчик для добавления товару в корзину. Пусть он принимает объект вида { gabs:<габариты>,weight:<вес>}
+    function goodAdded(params){
+        sectionWidjet.cargo.add ({
+            length: params.gabs[0],
+            width: params.gabs[1],
+            height: params.gabs[2],
+            weight: params.weight
+        });
+    }
+</script>
+<div>Стоимость доставки вашей корзины на ПВЗ: <span id='delPricePVZ'>рассчитывается…</span></div>
+<div>Стоимость доставки вашей корзины курьером: <span id='delPriceCourier'>рассчитывается…</span></div>
+<div>Вес покупок: <span id='ves'>рассчитывается…</span></div>
+<div>Объемный вес покупок: <span id='vesob'>рассчитывается…</span></div>
+<div style="display: flex; justify-content: center; align-items: center;">
+    <div class="block">
+        <span>Ботинки зимние фирмы Retchel</span><br/>
+        <span>Параметры коробки 20см*30см*10см, вес 2,5 кг.</span><br/>
+        <button onclick="goodAdded({gabs:[20,30,10],weight:2.5})" >В корзину</button>
+    </div>
+    <div class="block">
+        <p>Футболка белая с логотипом Cdek</p>
+        <span>Параметры коробки 15см*20см*2см, вес 0,2 кг.</span><br/>
+        <button onclick="goodAdded({gabs:[15,20,2],weight:0.2})" >В корзину</button>
+    </div>
+    <div class="block">
+        <p>Куртка демисезонная с капюшоном</p>
+        <span>Параметры коробки 35см*40см*20см, вес 1,7 кг.</span><br/>
+        <button onclick="goodAdded({gabs:[35,40,20],weight:1.7})" >В корзину</button>
+    </div>
+
+</div>
+
+<div id="forpvz"></div>
+
+
+</body>
+</html>

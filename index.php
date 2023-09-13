@@ -1,16 +1,18 @@
 <?
 header('Content-Type: text/html; charset=utf-8');
 ?>
-<script id="ISDEKscript" type="text/javascript" src="widjet.js"></script>
+<script id="ISDEKscript" type="text/javascript" src="widget/widjet.js"></script>
 <script>
 	var widjet = new ISDEKWidjet({
 		hideMessages: false,
-		defaultCity: 'Новосибирск',
+		defaultCity: 'auto',
 		cityFrom: 'Омск',
-		country: 'Россия',
-		choose: true, //скрыть кнопку выбора
-		//path : true,
+		choose: true,
 		link: 'forpvz',
+        hidedress: false,
+        bymapcoord: false,
+        hidecash: false,
+        hidedelt: false,
 		goods: [{
 			length: 10,
 			width: 10,
@@ -33,7 +35,7 @@ header('Content-Type: text/html; charset=utf-8');
 			'Выбран пункт выдачи заказа ' + wat.id + "\n<br/>" +
 			'цена ' + wat.price + "\n<br/>" +
 			'срок ' + wat.term + " дн.\n<br/>" +
-			'город ' + wat.city
+			'город ' + wat.cityName + ' (код: ' + wat.city +')'
 		);
 	}
 
@@ -62,12 +64,7 @@ header('Content-Type: text/html; charset=utf-8');
 		}
     </script>
 <h1>Виджет выбора типа доставки</h1>
-<div style="float:right; width: 200px;">
-    Корзина покупателя:
-    <p> Количество товаров: <span id="cntItems">1</span></p>
-    <p> Вес товара: <span id="weiItems">1</span></p>
-    <button onclick="addGood();">Добавить товар</button>
-</div>
+
 Основные возможности виджета:
 <ul>
     <li>Выбор города и отображение списка ПВЗ для него</li>
@@ -79,36 +76,46 @@ header('Content-Type: text/html; charset=utf-8');
 </ul>
 
 Для подключения виджета необходимо на нужную страницу добавить код (рекомендуется его расположить внутри тега &lt;head&gt;):
-<pre>&lt;script id="ISDEKscript" type="text/javascript" src="http://cdek.ru/url/widjet.js"&gt;&lt;/script&gt;</pre>
+<pre>&lt;script id="ISDEKscript" type="text/javascript" src="https://www.cdek.ru/website/edostavka/template/js/widjet.js"&gt;&lt;/script&gt;</pre>
 
-А также скопировать к себе на сайт файл <a href="http://cdek.ru/url/widgetdocs.zip">service.php</a>, в котором произвести настройки в соотвествии с вашими данными по интегарции.
-Например, в строчках 3-4 указать используемые тарифы:
+А также скопировать к себе на сайт файл <a href="https://www.cdek.ru/website/edostavka/upload/custom/files/pvzwidget.zip">service.php</a>, в котором произвести настройки в соотвествии с вашими данными по интегарции.
+Например, в строчках 5-6 указать используемые тарифы:
 <pre>
 ISDEKservice::setTarifPriority(
     array(233, 137, 139, 16, 18, 11, 1, 3, 61, 60, 59, 58, 57, 83),
     array(234, 136, 138, 15, 17, 62, 63, 5, 10, 12)
 );
 </pre>
-А в строчках 15-16 указать аккаунт к интеграции, чтобы получать стоимость доставки в соответствии с вашим договором:
+А в строчках 17-18 указать аккаунт к интеграции, чтобы получать стоимость доставки в соответствии с вашим договором:
 <pre>
     protected static $account = 'ACCOUNT_FROM_INTEGRATION';
     protected static $key     = 'SECURE_PASSWORD_FROM_INTEGRATION';</pre>
 
 Для отображения виджета на вашем сайте необходимо создать javascript-обработчик для виджета:
-<pre>&lt;script type=’text/javascript’&gt;
+<pre>&lt;script type="text/javascript"&gt;
     var ourWidjet = new ISDEKWidjet ({
         defaultCity: 'Новосибирск', //какой город отображается по умолчанию
         cityFrom: 'Омск', // из какого города будет идти доставка
         country: 'Россия', // можно выбрать страну, для которой отображать список ПВЗ
-        link: 'forpvz' // id элемента страницы, в который будет вписан виджет
-        servicepath: 'http://yoursite.net/service.php' //
+        link: 'forpvz', // id элемента страницы, в который будет вписан виджет
+        path: 'https://www.cdek.ru/website/edostavka/template/scripts/', //директория с бибилиотеками
+        servicepath: 'http://yoursite.net/service.php' //ссылка на файл service.php на вашем сайте
     });
 &lt;/script&gt;</pre>
 
-Ниже представлена часть возможностей виджета. С более подробными возможностями можно ознакомиться, <a href="http://cdek.ru/url/widgetdocs.zip">скачав документацию к виджету
-</a>
+<p>А также на странице необходимо разместить элемент, в который будет вписана карта с пунктами выдачи заказов. Для элемента требуется указать высоту.
+<pre>
+&lt;div id="forpvz" style="width:100%; height:600px;"&gt;&lt;/div&gt;
+</pre></p>
+<p>Ниже представлена часть возможностей виджета. С более подробными возможностями можно ознакомиться, <a href="https://www.cdek.ru/website/edostavka/upload/custom/files/pvzwidget.zip">скачав документацию к виджету
+    </a></p>
 
-
+<div style="width: 200px;">
+    Корзина покупателя:
+    <p> Количество товаров: <span id="cntItems">1</span> шт.</p>
+    <p> Вес товара: <span id="weiItems">1</span> кг.</p>
+    <button onclick="addGood();">Добавить товар</button>
+</div>
 
 <br/>
 <br/>

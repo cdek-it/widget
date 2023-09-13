@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример работы виджета ПВЗ</title>
+    <script type="text/javascript" id="ISDEKscript" src="https://www.cdek.ru/website/edostavka/template/js/widjet.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    var widjet = new ISDEKWidjet({
+        showWarns: true,
+        showErrors: true,
+        showLogs: true,
+        hideMessages: false,
+        path: 'https://www.cdek.ru/website/edostavka/template/scripts/',
+        servicepath: 'http://integration.local/pvzwidget/widget/scripts/service.php', //ссылка на файл service.php на вашем сайте
+//        servicepath: 'http://yoursite.net/service.php', //ссылка на файл service.php на вашем сайте
+        templatepath: 'https://www.cdek.ru/website/edostavka/template/scripts/template.php',
+        choose: true,
+        popup: true,
+        country: 'Россия',
+        defaultCity: 'Уфа',
+        cityFrom: 'Омск',
+        link: false,
+        hidedress: true,
+        hidecash: true,
+        hidedelt: false,
+        goods: [{
+            length: 10,
+            width: 10,
+            height: 10,
+            weight: 1
+        }],
+        onReady: onReady,
+        onChoose: onChoose,
+        onChooseProfile: onChooseProfile,
+        onCalculate: onCalculate
+    });
+
+    function onReady() {
+        alert('Виджет загружен');
+    }
+
+    function onChoose(wat) {
+        alert(
+            'Выбран пункт выдачи заказа ' + wat.id + "\n" +
+            'цена ' + wat.price + "\n" +
+            'срок ' + wat.term + " дн.\n" +
+            'город ' + wat.cityName + ', код города ' + wat.city
+        );
+    }
+
+    function onChooseProfile(wat) {
+        alert(
+            'Выбрана доставка курьером в город ' + wat.cityName + ', код города ' + wat.city + "\n" +
+            'цена ' + wat.price + "\n" +
+            'срок ' + wat.term + ' дн.'
+        );
+    }
+
+    function onCalculate(wat) {
+        alert('Расчет стоимости доставки произведен');
+    }
+
+</script>
+
+
+<p>Пример инициализации виджета с указанием всех параметров виджета</p>
+<a href='javascript:void(0);' onclick='widjet.open()'>Показать ПВЗ</a>
+<div id="forpvz" style="height:600px;"></div>
+
+</body>
+</html>

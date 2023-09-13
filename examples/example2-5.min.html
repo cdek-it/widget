@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример работы виджета ПВЗ</title>
+    <script type="text/javascript" src="https://www.cdek.ru/website/edostavka/template/js/widjet.js" id="ISDEKscript" ></script>
+</head>
+<body>
+<script>
+    var widjet = new ISDEKWidjet({
+        defaultCity: 'Уфа',
+        cityFrom: 'Омск',
+        link: 'forpvz',
+        path: 'https://www.cdek.ru/website/edostavka/template/scripts/',
+        servicepath: 'http://yoursite.net/service.php' //ссылка на файл service.php на вашем сайте
+    });
+</script>
+
+
+<p>Пример минимальной установки виджета</p>
+<div id="forpvz" style="height:600px;"></div>
+
+</body>
+</html>

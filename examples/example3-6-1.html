@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример работы виджета ПВЗ</title>
+    <script type="text/javascript" src="../widget/widjet.js" id="ISDEKscript" ></script>
+</head>
+<body>
+<script type="text/javascript">
+    var widjet = new ISDEKWidjet({
+        defaultCity: 'auto',
+        cityFrom: 'Уфа',
+        country: 'Россия',
+        link: 'forpvz'
+    });
+
+    cahngeOptions = function () {
+        var oldCity = widjet.city.get();
+        var checkCity = widjet.city.check('Сочи');
+        if (checkCity) widjet.city.set('Сочи');
+        alert('Старое значение города = ' + oldCity + "\n" +
+                'Новое значение города = ' + widjet.city.get());
+    }
+</script>
+
+<p>Используем методы виджета для работы с городами: получить текущий,
+    проверить наличие города Сочи и установить город Сочи</p>
+<button onclick="cahngeOptions();">Установить город Сочи</button>
+<div id="forpvz" style="height:500px;"></div>
+
+</body>
+</html>

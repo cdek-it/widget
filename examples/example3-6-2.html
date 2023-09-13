@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример работы виджета ПВЗ</title>
+    <script type="text/javascript" src="../widget/widjet.js" id="ISDEKscript" ></script>
+    <style>
+        p {padding: 2px 0; margin: 0;}
+
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    var widjet = new ISDEKWidjet({
+        defaultCity: 'auto',
+        cityFrom: 'Уфа',
+        country: 'Россия',
+        link: 'forpvz',
+        goods: [{
+            length: 10,
+            width: 10,
+            height: 10,
+            weight: 1
+        }]
+    });
+    var setJQ = false;
+    cahngeOptions = function () {
+        if (!setJQ) {
+            ipjq('#length').change(function () {
+                ipjq('#lengthCV').html(ipjq('#length').val());
+            });
+            ipjq('#width').change(function () {
+                ipjq('#widthCV').html(ipjq('#width').val());
+            });
+            ipjq('#height').change(function () {
+                ipjq('#heightCV').html(ipjq('#height').val());
+            });
+            ipjq('#weight').change(function () {
+                ipjq('#weightCV').html(ipjq('#weight').val());
+            });
+
+            setJQ = true;
+        }
+        var input = getFormData(ipjq("form#params"));
+        widjet.cargo.add(input);
+    };
+
+    function getFormData($form){
+        var unindexed_array = $form.serializeArray();
+        var indexed_array = {};
+
+        ipjq.map(unindexed_array, function(n, i){
+            indexed_array[n['name']] = n['value'];
+        });
+
+        return indexed_array;
+    }
+
+    function getCargo(){
+        var str = JSON.stringify(widjet.cargo.get()); // преобразуем объекты в формат JSON
+        ipjq('#pp').html('<pre>'+ str.split("},").join("},\n") +'</pre>');
+    }
+
+    function resetCargo(){
+        widjet.cargo.reset(); // сбрасываем значения в виджете
+        getCargo(); // отображаем текущее состояние посылок на странице
+    }
+
+</script>
+
+<p>Операции с посылками: добавление, получение текущих и сброс параметров товара для расчета стоимости доставки</p>
+<div style="display:flex" >
+    <div style="flex-basis: 35%;">
+        Параметры товара:
+        <form id="params">
+            <p><input type="number" min="1" size="5" max="60" name="length" id="length" value="15"/> - длина <span id="lengthCV">15</span> см.</p>
+            <p><input type="number" min="1" size="5" max="50" name="width" id="width" value="10"/> - ширина <span id="widthCV">10</span> см.</p>
+            <p><input type="number" min="1" size="5" max="40" name="height" id="height" value="10"/> - высота <span id="heightCV">10</span> см.</p>
+            <p><input type="number" min="0.1" size="5" max="20" step="0.1" name="weight" id="weight" value="0.4"/> - вес <span id="weightCV">0.4</span> кг.</p>
+        </form>
+        <button onclick="cahngeOptions();">Добавить товар</button>
+    </div>
+    <div style="flex: auto;">
+        <button onclick="getCargo();">Посмотреть содежримое</button>
+        <button onclick="resetCargo();">Сброс</button>
+        <p id="pp"></p>
+    </div>
+</div>
+
+
+<div id="forpvz" style="height:500px;"></div>
+
+</body>
+</html>

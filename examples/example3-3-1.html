@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример работы виджета ПВЗ</title>
+    <script type="text/javascript" src="../widget/widjet.js" id="ISDEKscript" ></script>
+</head>
+<body>
+<script type="text/javascript">
+    var widjet = new ISDEKWidjet({
+        defaultCity: 'Уфа',
+        cityFrom: 'Омск',
+        link: 'forpvz',
+        choose: false
+    });
+</script>
+
+
+<p>Выберите любой ПВЗ и кнопка "Выбрать" в нем не отображается</p>
+<div id="forpvz" style="height:600px;"></div>
+
+</body>
+</html>

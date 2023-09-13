@@ -119,7 +119,7 @@ class ISDEKservice
 			return false;
 		}
 
-		$request = self::sendToSDEK('pvzlist', false, 'type=ALL');
+		$request = self::sendToSDEK('pvzlist', false, 'type=ALL' .(isset($_REQUEST['lang'])? '&lang='.$_REQUEST['lang'] : '') );
 		$arLL = array();
 		if ($request && $request['code'] == 200) {
 			$xml = simplexml_load_string($request['result']);
@@ -155,6 +155,7 @@ class ISDEKservice
 					'Site'           => (string)$val['Site'],
 					'Metro'          => (string)$val['MetroStation'],
 					'AddressComment' => (string)$val['AddressComment'],
+					'CityCode'       => (string)$val['CityCode'],
 				);
 				if ($val->WeightLimit) {
 					$arList[$type][$cityCode][$code]['WeightLim'] = array(
@@ -291,7 +292,7 @@ class ISDEKservice
 	protected static function sendToCity($data)
 	{
 		$result = self::client(
-			'http://api.cdek.ru/city/getListByTerm/json.php?q=' . $data
+			'http://api.cdek.ru/city/getListByTerm/json.php?q=' . urlencode($data)
 		);
 		return $result;
 	}
@@ -322,40 +323,79 @@ class ISDEKservice
 	// LANG
 	protected static function getLangArray()
 	{
-		return array(
-			'YOURCITY'   => 'Ваш город',
-			'COURIER'    => 'Курьер',
-			'PICKUP'     => 'Самовывоз',
-			'TERM'       => 'Срок',
-			'PRICE'      => 'Стоимость',
-			'DAY'        => 'дн.',
-			'RUB'        => 'руб.',
-			'NODELIV'    => 'Нет доставки',
-			'CITYSEATCH' => 'Поиск города',
-			'CITYSEARCH' => 'Поиск города',
-			'ALL'        => 'Все',
-			'PVZ'        => 'Пункты выдачи',
-			'MOSCOW'     => 'Москва',
-			'RUSSIA'     => 'Россия',
-			'COUNTING'   => 'Идет расчет',
+		$tanslate = array(
+			'rus' => array(
+				'YOURCITY'   => 'Ваш город',
+				'COURIER'    => 'Курьер',
+				'PICKUP'     => 'Самовывоз',
+				'TERM'       => 'Срок',
+				'PRICE'      => 'Стоимость',
+				'DAY'        => 'дн.',
+				'RUB'        => 'руб.',
+				'NODELIV'    => 'Нет доставки',
+				'CITYSEARCH' => 'Поиск города',
+				'ALL'        => 'Все',
+				'PVZ'        => 'Пункты выдачи',
+				'MOSCOW'     => 'Москва',
+				'RUSSIA'     => 'Россия',
+				'COUNTING'   => 'Идет расчет',
 
-			'NO_AVAIL'          => 'Нет доступных способов доставки',
-			'CHOOSE_TYPE_AVAIL' => 'Выберите способ доставки',
-			'CHOOSE_OTHER_CITY' => 'Выберите другой населенный пункт',
+				'NO_AVAIL'          => 'Нет доступных способов доставки',
+				'CHOOSE_TYPE_AVAIL' => 'Выберите способ доставки',
+				'CHOOSE_OTHER_CITY' => 'Выберите другой населенный пункт',
 
-			'EST' => 'есть',
+				'EST' => 'есть',
 
-			'L_ADDRESS' => 'Адрес пункта выдачи заказов',
-			'L_TIME'    => 'Время работы',
-			'L_WAY'     => 'Как к нам проехать',
-			'L_CHOOSE'  => 'Выбрать',
+				'L_ADDRESS' => 'Адрес пункта выдачи заказов',
+				'L_TIME'    => 'Время работы',
+				'L_WAY'     => 'Как к нам проехать',
+				'L_CHOOSE'  => 'Выбрать',
 
-			'H_LIST'    => 'Список пунктов выдачи заказов',
-			'H_PROFILE' => 'Способ доставки',
-			'H_CASH'    => 'Расчет картой',
-			'H_DRESS'   => 'С примеркой',
-			'H_SUPPORT' => 'Служба поддержки',
+				'H_LIST'    => 'Список пунктов выдачи заказов',
+				'H_PROFILE' => 'Способ доставки',
+				'H_CASH'    => 'Расчет картой',
+				'H_DRESS'   => 'С примеркой',
+				'H_SUPPORT' => 'Служба поддержки',
+				'H_QUESTIONS' => 'Если у вас есть вопросы, можете<br> задать их нашим специалистам',
+		),
+			'eng' => array(
+				'YOURCITY'   => 'Your city',
+				'COURIER'    => 'Courier',
+				'PICKUP'     => 'Pickup',
+				'TERM'       => 'Term',
+				'PRICE'      => 'Price',
+				'DAY'        => 'days',
+				'RUB'        => ' RUB',
+				'NODELIV'    => 'Not delivery',
+				'CITYSEARCH' => 'Search for a city',
+				'ALL'        => 'All',
+				'PVZ'        => 'Points of self-delivery',
+				'MOSCOW'     => 'Moscow',
+				'RUSSIA'     => 'Russia',
+				'COUNTING'   => 'Calculation',
+
+				'NO_AVAIL'          => 'No shipping methods available',
+				'CHOOSE_TYPE_AVAIL' => 'Choose a shipping method',
+				'CHOOSE_OTHER_CITY' => 'Choose another location',
+
+				'EST' => 'есть',
+
+				'L_ADDRESS' => 'Adress of self-delivery',
+				'L_TIME'    => 'Working hours',
+				'L_WAY'     => 'How to get to us',
+				'L_CHOOSE'  => 'Choose',
+
+				'H_LIST'    => 'List of self-delivery',
+				'H_PROFILE' => 'Shipping method',
+				'H_CASH'    => 'Payment by card',
+				'H_DRESS'   => 'Dressing room',
+				'H_SUPPORT' => 'Support',
+				'H_QUESTIONS' => 'If you have any questions,<br> you can ask them to our specialists',
+			)
+
 		);
+		if (isset($_REQUEST['lang']) && isset($tanslate[$_REQUEST['lang']]) ) return $tanslate[$_REQUEST['lang']];
+		else return $tanslate['ru'];
 	}
 
 	// answering

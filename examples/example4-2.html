@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример работы виджета ПВЗ</title>
+    <script type="text/javascript" src="../widget/widjet.js" id="ISDEKscript" ></script>
+
+</head>
+<body>
+<p>Пример виджета для карточки товара</p>
+<script type="text/javascript">
+    var cartWidjet = new ISDEKWidjet ({
+        cityFrom: 'Екатеринбург', // доставка ведется из Екатеринбурга
+        choose: false, // не будем отображать кнопку выбора ПВЗ
+        hidedelt: true, // скроем возможность выбора типа доставки
+        goods: [ // установим данные о товаре для корректного расчета стоимости доставки
+            { length: 20, width: 20, height: 20, weight: 2 }
+        ],
+        popup: true, // включим режим всплывающего окна
+        onCalculate: calculated
+    });
+    // сделаем так, чтобы при расчете доставки до ПВЗ обновлялась информация в блоке с деталями доставки
+    function calculated(params){
+        ipjq('#delPrice').html(params.profiles.pickup.price);
+        ipjq('#delTime').html(params.profiles.pickup.term);
+    }
+</script>
+Здесь поставим блок с информацией о доставке:
+<div>
+    Стоимость доставки: <span id='delPrice'>грузится</span> руб.<br>
+    Срок доставки: <span id='delTime'>грузится</span> дн.<br>
+    <a href='javascript:void(0)' onclick='cartWidjet.open()'>Показать ПВЗ</a>
+</div>
+
+</body>
+</html>
