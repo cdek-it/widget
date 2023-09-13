@@ -1,0 +1,13 @@
+# Created by .ignore support plugin (hsz.mobi)
+*.log
+.log
+/e-store/*
+/magento/*
+/nbproject/*
+/*/*
+/calc/*
+/bitrix/*
+*.log.*
+*.txt
+/id_request
+/190688.csv
