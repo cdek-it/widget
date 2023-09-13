@@ -1,3 +1,7 @@
+.CDEK-widget a {
+	text-decoration: none;
+}
+
 .CDEK-widget *,
 .CDEK-widget *:before,
 .CDEK-widget *:after {
@@ -1684,6 +1688,9 @@ body {
 }
 .CDEK-widget__delivery-type__button.CDEK-widget__delivery-type__button_courier .CDEK-widget__delivery_post {
   fill: transparent;
+}
+.CDEK-widget__delivery-type__button.CDEK-widget__delivery-type__button_pvz, .CDEK-widget__delivery-type__button.CDEK-widget__delivery-type__button_courier {
+	cursor: pointer;
 }
 .CDEK-widget__delivery-type__button.CDEK-widget__delivery-type__button_pvz {
   background: #50a631;

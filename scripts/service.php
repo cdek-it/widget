@@ -12,8 +12,8 @@ if (method_exists('ISDEKservice', $action)) {
 class ISDEKservice
 {
 	// auth
-	protected static $account = "cdek-login"; //укажите логин
-	protected static $key     = "cdek-password"; //укажите ключ
+	protected static $account = false; //укажите логин
+	protected static $key     = false; //укажите ключ
 	
 
 	protected static $tarifPriority = false;
@@ -160,8 +160,23 @@ class ISDEKservice
 						'MAX' => (float)$val->WeightLimit['WeightMax']
 					);
 				}
-				if ($val->OfficeImage)
-					$arList[$type][$cityCode][$code]['Picture'] = (string)$val->OfficeImage['url'];
+
+				$arImgs = array();
+				if (!is_array($val->OfficeImage)) {
+					$arToCheck = array(array('url' => (string)$val->OfficeImage['url']));
+				} else {
+					$arToCheck = $val->OfficeImage;
+				}
+
+				foreach ($val->OfficeImage as $img) {
+					if (strstr($_tmpUrl = (string)$img['url'], 'http') === false) {
+						continue;
+					}
+					$arImgs[] = (string)$img['url'];
+				}
+
+				if (count($arImgs = array_filter($arImgs)))
+					$arList[$type][$cityCode][$code]['Picture'] = $arImgs;
 				if ($val->OfficeHowGo)
 					$arList[$type][$cityCode][$code]['Path'] = (string)$val->OfficeHowGo['url'];
 
@@ -249,16 +264,21 @@ class ISDEKservice
 	protected static function getHeaders()
 	{
 		$date = date('Y-m-d');
-		return array(
-			'date'    => $date,
-			'account' => self::$account,
-			'secure'  => md5($date . "&" . self::$key)
+		$arHe = array(
+			'date' => $date
 		);
+		if (self::$account && self::$key) {
+			$arHe = array(
+				'date'    => $date,
+				'account' => self::$account,
+				'secure'  => md5($date . "&" . self::$key)
+			);
+		}
+		return $arHe;
 	}
 
 	protected static function sendToCalculate($data)
 	{
-        file_put_contents('/tmp/data.log', json_encode($data)."\n", FILE_APPEND);
 		$result = self::client(
 			'http://api.cdek.ru/calculator/calculate_price_by_json_request.php',
 			array('json' => json_encode($data))

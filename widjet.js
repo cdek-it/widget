@@ -691,10 +691,16 @@ function ISDEKWidjet(params) {
 
 	widjet.popupped = false;
 	widjet.loadedToAction = false;
+	widjet.finalActionCalled = false;
 	widjet.loaderHided = false;
 
 	widjet.finalAction = function () {
+		if (widjet.finalActionCalled === true) {
+			return;
+		}
+		widjet.finalActionCalled = true;
 		template.controller.loadCity();
+
 		this.sdekWidgetEvents();
 
 		this.binders.trigger('onReady');
@@ -763,7 +769,9 @@ function ISDEKWidjet(params) {
 			collection: {},
 			collectionFull: {},
 			current: false,
-
+			get: function () {
+				return this.current;
+			},
 			set: function (intCityID) {
 
 				if (this.checkCity(intCityID)) {
@@ -972,10 +980,11 @@ function ISDEKWidjet(params) {
 				} else
 					widjet.logger.error('Error while calculating: ' + sign.substring(0, sign.length - 2));
 			} else {
+
 				CALCULATION.bad = false;
 				CALCULATION.profiles[answer.type].price = answer.result.price;
 				CALCULATION.profiles[answer.type].term = (answer.result.deliveryPeriodMax === answer.result.deliveryPeriodMin) ? answer.result.deliveryPeriodMin : answer.result.deliveryPeriodMin + "-" + answer.result.deliveryPeriodMax;
-				CALCULATION.profiles[answer.type].tarif = answer.result.tarif;
+				CALCULATION.profiles[answer.type].tarif = typeof answer.result.tarif != 'undefined' ? answer.result.tarif : answer.result.tariffId;
 			}
 
 			if (typeof(answer.type) !== 'undefined' && typeof(answer.timestamp) !== 'undefined' && typeof(CALCULATION.binder[answer.timestamp]) !== 'undefined') {
@@ -994,7 +1003,7 @@ function ISDEKWidjet(params) {
 	};
 
 	var cargo = {
-		collection: (typeof widjet.options.get('goods') == 'object') ? widjet.options.get('goods') : [] ,
+		collection: (typeof widjet.options.get('goods') == 'object') ? widjet.options.get('goods') : [],
 
 		add: function (item) {
 			if (
@@ -1188,13 +1197,18 @@ function ISDEKWidjet(params) {
 					ipjq(IDS.get('cdek_widget_cnt')).find(IDS.get('cdek_delivery_type_none')).hide();
 
 					for (var i in obPrices) {
+
+						if (obPrices[i].price === null || obPrices[i].term === null) {
+							continue;
+						}
+
 						switch (i) {
 							case 'courier':
 							case 'pickup':
 
 								_tmpBlock = HTML.getBlock('d_' + i, {
 									"SUMM": obPrices[i].price === null ? LANG.get('COUNTING') : obPrices[i].price,
-									"TIME": obPrices[i].price === null ? '' : obPrices[i].term
+									"TIME": obPrices[i].term === null ? '' : obPrices[i].term
 								});
 
 								ipjq(IDS.get('cdek_delivery_types')).append(_tmpBlock);
@@ -1213,6 +1227,9 @@ function ISDEKWidjet(params) {
 		},
 
 		controller: {
+			getCity: function () {
+				return DATA.city.get();
+			},
 			loadCity: function (doLoad) {
 
 				ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__panel-details__back').click();
@@ -1245,7 +1262,16 @@ function ISDEKWidjet(params) {
 					ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__delivery-type').removeClass('CDEK-widget__delivery-type_close');
 				}, 1000);
 			},
+			putCity: function (city) {
+				if (typeof (city) === 'object') {
+					city = city.data.name;
+				}
 
+				ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search input[type=text]').val(DATA.city.getName(city));
+				ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search-list ul li').removeClass('focus').addClass('no-active').parent('ul').removeClass('open');
+
+
+			},
 			updatePrices: function () {
 				template.html.updatePrices({
 					courier: CALCULATION.profiles.courier,
@@ -1318,15 +1344,17 @@ function ISDEKWidjet(params) {
 
 			open: function () {
 
-				this.active = true;
+
 				ipjq(IDS.get('CDEK_popup')).show();
 
 				if (widjet.loadedToAction) {
+
 					widjet.finalAction();
+
 				} else {
 					widjet.popupped = false;
 				}
-
+				this.active = true;
 				if (ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search-list__box li').length >= 10) {
 					ipjq(IDS.get('cdek_widget_cnt')).find(".CDEK-widget__search-list__box").mCustomScrollbar();
 				}
@@ -1368,7 +1396,14 @@ function ISDEKWidjet(params) {
 							center: coords,
 							duration: 300
 						});
-
+						this.map.controls.add(new ymaps.control.ZoomControl(),
+							{
+								position: {
+									left: 12,
+									bottom: 70
+								}
+							});
+						this.map.events.add('boundschange', widjet.hideLoader);
 					} else {
 						self.map.setCenter(coords);
 						self.map.setZoom(10);
@@ -1408,7 +1443,8 @@ function ISDEKWidjet(params) {
 				if (typeof pvzList === 'object') {
 					template.ymaps.clusterer = new ymaps.Clusterer({
 						gridSize: 50,
-						preset: 'islands#darkGreenClusterIcons',
+						preset: 'islands#ClusterIcons', //'#0a8c37'
+						clusterIconColor: '#0a8c37',
 						hasBalloon: false,
 						groupByCoordinates: false,
 						clusterDisableClickZoom: false,
@@ -1450,7 +1486,7 @@ function ISDEKWidjet(params) {
 
 						pvzList[i].placeMark.events.add(['balloonopen', 'click'], function (metka) {
 							_prevMark = template.ui.currentmark;
-							console.log(metka.get('target'));
+
 							template.ui.currentmark = metka.get('target');
 							if (typeof _prevMark == 'object') {
 								try {
@@ -1504,13 +1540,32 @@ function ISDEKWidjet(params) {
 							this.map = new ymaps.Map(template.ymaps.linker, {
 								zoom: 10,
 								controls: [],
-								center: _bounds[0],
+								center: _bounds[0]
 							});
+							this.map.geoObjects.add(template.ymaps.clusterer);
 						} else {
 							this.map = new ymaps.Map(template.ymaps.linker, {
 								controls: [],
-								bounds: template.ymaps.clusterer.getBounds(),
+								bounds: _bounds,
 							});
+							this.map.geoObjects.add(template.ymaps.clusterer);
+							this.map.events.add('actionend', function () {
+								widjet.hideLoader();
+							});
+							this.map.setBounds(_bounds, {
+								zoomMargin: 45,
+								checkZoomRange: true,
+								duration: 500
+							});
+
+							this.map.controls.add(new ymaps.control.ZoomControl(),
+								{
+									float: 'none',
+									position: {
+										left: 12,
+										bottom: 70
+									}
+								});
 						}
 
 						template.ymaps.clearMarks();
@@ -1519,19 +1574,20 @@ function ISDEKWidjet(params) {
 
 					} else {
 						if (_bounds[0][0] == _bounds[1][0]) {
+
 							this.map.setCenter(_bounds[0]);
 							this.map.setZoom(10);
 							template.ymaps.clearMarks();
 							this.map.geoObjects.add(template.ymaps.clusterer);
-							widjet.hideLoader();
+
 						} else {
+
 							this.map.setBounds(template.ymaps.clusterer.getBounds(), {
-								zoomMargin: 45, checkZoomRange: true, duration: 1000
+								zoomMargin: 45, checkZoomRange: true, duration: 500
 							}).then(
 								function () {
 									template.ymaps.clearMarks();
 									this.map.geoObjects.add(template.ymaps.clusterer);
-									widjet.hideLoader();
 									if (this.map.getZoom() > 12) {
 										this.map.setZoom(12);
 									}
@@ -1539,7 +1595,6 @@ function ISDEKWidjet(params) {
 								function () {
 									template.ymaps.clearMarks();
 									this.map.geoObjects.add(template.ymaps.clusterer);
-									widjet.hideLoader();
 									if (this.map.getZoom() > 12) {
 										this.map.setZoom(12);
 									}
@@ -1563,24 +1618,56 @@ function ISDEKWidjet(params) {
 
 				this.readyToBlink = true;
 			},
+			makeUpCenter: function (cords) {
+				var projection = this.map.options.get('projection');
+				cords = this.map.converter.globalToPage(
+					projection.toGlobalPixels(
+						cords,
+						this.map.getZoom()
+					)
+				);
+				ww = ipjq(IDS.get('panel')).width();
+
+				if (ipjq(IDS.get('cdek_widget_cnt')).width() - ww > 100) {
+					cords[0] = cords[0] + ww / 2;
+				}
+
+				cords = projection.fromGlobalPixels(
+					this.map.converter.pageToGlobal(cords), this.map.getZoom()
+				);
+
+				return cords;
+			},
 
 			selectMark: function (wat) {
 				var cityPvz = DATA.PVZ.getCurrent();
 
-				this.map.setCenter([cityPvz[wat].cY, cityPvz[wat].cX]);
+				this.map.setCenter(template.ymaps.makeUpCenter([cityPvz[wat].cY, cityPvz[wat].cX]));
 
 				_detailPanel = ipjq(IDS.get('panel')).find(IDS.get('detail_panel'));
 				_detailPanel.html('');
+
+				_photoHTML = '';
+				if (typeof cityPvz[wat].Picture != 'undefined') {
+					for (_imgIndex in  cityPvz[wat].Picture) {
+						_photoHTML += HTML.getBlock('image_c', {D_PHOTO: cityPvz[wat].Picture[_imgIndex]});
+					}
+				}
 
 				_block = ipjq(HTML.getBlock('panel_details', paramsD = {
 					D_NAME: cityPvz[wat].Name,
 					D_ADDR: cityPvz[wat].Address,
 					D_TIME: cityPvz[wat].WorkTime.replace(new RegExp(',', 'g'), '<br/>'),
-					D_WAY: cityPvz[wat].AddressComment.search('http') == -1 ? cityPvz[wat].AddressComment : ''
+					D_WAY: cityPvz[wat].AddressComment.search('http') == -1 ? cityPvz[wat].AddressComment : '',
+					D_IMGS: _photoHTML,
 				}));
 
-				if (!paramsD.D_WAY) {
+				if (paramsD.D_WAY == '') {
 					_block.find('.CDEK-widget__way').remove();
+				}
+
+				if (paramsD.D_IMGS == '') {
+					_block.find('.sdek_image_block').remove();
 				}
 
 				_block.find(IDS.get('choose_button')).on('click', {id: wat}, function (event) {
@@ -1588,7 +1675,6 @@ function ISDEKWidjet(params) {
 				});
 
 				_detailPanel.html(_block);
-
 			},
 
 			blinkPVZ: function (event) {
@@ -1702,7 +1788,8 @@ function ISDEKWidjet(params) {
 			}
 		}).on('click', '.CDEK-widget__choose', function () {
 			ipjq(this).addClass('loading');
-		}).on('hover', '.CDEK-widget__sidebar-button', function () {
+		});
+		ipjq(IDS.get('cdek_widget_cnt')).on('mousemove', '.CDEK-widget__sidebar-button', function () {
 			if (!ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__panel').hasClass('open')) {
 				var idHint = ipjq(this).attr('data-hint');
 				ipjq(IDS.get('cdek_widget_cnt')).find(idHint).css({
@@ -1710,7 +1797,7 @@ function ISDEKWidjet(params) {
 					'opacity': '1'
 				});
 			}
-		}, function () {
+		}).on('mouseleave', '.CDEK-widget__sidebar-button', function () {
 			var idHint = ipjq(this).attr('data-hint');
 			var wid = ipjq(IDS.get('cdek_widget_cnt')).find(idHint).outerWidth();
 			ipjq(IDS.get('cdek_widget_cnt')).find(idHint).css({
@@ -1817,7 +1904,7 @@ function ISDEKWidjet(params) {
 			}
 		}).on('keyup', '.CDEK-widget__search input[type=text]', function (e) {
 			try {
-				var filter = new RegExp('.*(' + ipjq(this).val() + ')+.*', 'i');
+				var filter = new RegExp('^(' + ipjq(this).val() + ')+.*', 'i');
 			} catch (e) {
 				var filter = '';
 			}
@@ -1838,7 +1925,7 @@ function ISDEKWidjet(params) {
 
 			if (filter != '') {
 				$matches = $li.filter(function () {
-					return filter.test(ipjq(this).text().replace(/[^\wа-яё]+/gi, ""));
+					return filter.test(ipjq(this).find('.CDEK-widget__search-list__city-name').text().replace(/[^\wа-яё]+/gi, ""));
 				});
 
 				$li.not($matches).addClass('no-active').removeClass('focus');
@@ -1856,16 +1943,11 @@ function ISDEKWidjet(params) {
 			} else {
 				$li.removeClass('no-active');
 			}
-		}).on('click', '.CDEK-widget', function (e) {
+		}).on('click', function (e) {
 			if (ipjq(e.target).closest('.CDEK-widget__search').length == 0 && ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__search-list ul li').not('.no-active').length != 0) {
-				template.controller.selectCity();
+				template.controller.putCity(template.controller.getCity());
 			}
 
-			if (ipjq(e.target).closest('.CDEK-widget__photo').length == 0 && ipjq(e.target).closest('.CDEK-widget__panel').length == 0 && ipjq('.CDEK-widget__panel').hasClass('open') && ipjq(e.target).closest('.CDEK-widget__sidebar').length == 0) {
-				ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__panel').removeClass('open').children('div').fadeOut(500);
-				ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__sidebar-burger').removeClass('active').removeClass('open').addClass('close');
-				ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__sidebar-button_phone').removeClass('active');
-			}
 		}).on('click', '.CDEK-widget__delivery-type__item', {widjet: widjet}, function (e) {
 			if (!ipjq(this).hasClass('active')) {
 				ipjq(IDS.get('cdek_widget_cnt')).find('.CDEK-widget__delivery-type__item.active').removeClass('active');

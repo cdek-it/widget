@@ -52,16 +52,16 @@
     <script>
 		addGood = function () {
 			widjet.cargo.add({
-				length: 40,
-				width: 200,
+				length: 20,
+				width: 20,
 				height: 20,
-				weight: 25
+				weight: 1
 			});
 		}
     </script>
 
     <button onclick="addGood();">Добавить товар</button>
-    <div id="qwerty" style="width:100%; height:800px;"></div>
+    <div id="qwerty" style="width:100%; height:500px;"></div>
 <? } else if ($_REQUEST['POPUP']) { ?>
     <div class="site-container">
         <button class="CDEK-widget__popup-button" onclick="widjet.open();">Открыть модуль</button>
