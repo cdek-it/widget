@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример работы виджета ПВЗ</title>
+  <script src="https://cdn.jsdelivr.net/gh/cdek-it/widget@latest/dist/cdek-widget.umd.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', () => {
+          new window.CDEKWidget({
+                                    apiKey: 'f4e034c2-8c37-4168-8b97-99b6b3b268d7',
+                                    defaultLocation: 'Новосибирск',
+                                    from: 'Новосибирск',
+                                    goods: [
+                                        {
+                                            length: 10,
+                                            width: 10,
+                                            height: 10,
+                                            weight: 1,
+                                        }],
+                                    onChoose(type, tariff, address) {
+                                        console.log('Выбран метод доставки', type, tariff, address);
+
+                                        if (type === 'door') {
+                                            alert(
+                                              'Выбрана доставка курьером по адресу\n' +
+                                              address.formatted +
+                                              '\n' +
+                                              'Цена ' + tariff.delivery_sum + '\n' +
+                                              'Срок ' + tariff.period_max + ' дн.',
+                                            );
+                                        } else {
+                                            alert(
+                                              'Выбран пункт выдачи заказа ' + address.name + '\n' +
+                                              'Цена ' + tariff.delivery_sum + '\n' +
+                                              'Срок ' + tariff.period_max + ' дн.',
+                                            );
+                                        }
+                                    },
+                                });
+      });
+  </script>
+</head>
+<body>
+<p class="m-2">Выводим сообщение, что выбран пункт самовывоза</p>
+</body>
+</html>

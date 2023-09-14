@@ -34,8 +34,10 @@
 Далее необходимо создать обработчик для инициализации виджета. В нем необходимо указать желаемую конфигурацию виджета, а также ссылку на файл `service.php`, размещенный на вашем сервере. Обработчик с минимальным числом параметров будет выглядеть так:
 ```html
 <script type="text/javascript">
-  new window.CdekWidget({ from: 'Новосибирск', root: 'cdek-map', apiKey: 'yandex-api-key', servicePath: 'https://some-site.com/service.php', defaultLocation: 'Новосибирск' });
+  new window.CDEKWidget({ from: 'Новосибирск', root: 'cdek-map', apiKey: 'yandex-api-key', servicePath: 'https://some-site.com/service.php', defaultLocation: 'Новосибирск' });
 </script>
 ```
+
+Обработчик инициализации виджета необходимо вызывать, когда элемент с указанным ID элемента уже существует на странице, иначе он будет создан повторно.
 
 Далее необходимо провести настройку виджета в соответствии с информацией со страницы [Настройка 3.0](SETUP_3.md)

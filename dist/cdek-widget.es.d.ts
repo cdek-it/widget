@@ -81,7 +81,7 @@ declare enum Lang {
     ENG = "eng"
 }
 
-declare const enum OfficeType {
+declare enum OfficeType {
     ALL = "ALL",
     OFFICE = "PVZ",
     PICKUP = "POSTAMAT"
@@ -96,7 +96,7 @@ declare type tCalculateFunction = (prices: {
     address?: string;
 }) => void;
 
-declare type tChooseFunction = (type: DeliveryMode, tariff: iTariff, target: iOffice | iGeocoderMember) => void;
+declare type tChooseFunction = (type: DeliveryMode, tariff: iTariff | null, target: iOffice | iGeocoderMember) => void;
 
 declare type tReadyFunction = () => void;
 
@@ -142,9 +142,15 @@ declare const widgetSchema: ObjectSchema<{
         is_dressing_room: boolean;
         type: boolean;
     };
+    forceFilters: {
+        have_cashless: boolean | null;
+        have_cash: boolean | null;
+        is_dressing_room: boolean | null;
+        type: OfficeType | null;
+    };
     hideDeliveryOptions: {
+        door: boolean;
         office: boolean;
-        courier: boolean;
     };
     debug: boolean;
     goods: {
@@ -153,7 +159,7 @@ declare const widgetSchema: ObjectSchema<{
         height: number;
         weight: number;
     }[];
-    from: string;
+    from: string | null;
     defaultLocation: NonNullable<string | LngLat | undefined>;
     lang: Lang;
     currency: string;
@@ -177,19 +183,25 @@ declare const widgetSchema: ObjectSchema<{
         is_dressing_room: false;
         type: false;
     };
+    forceFilters: {
+        have_cashless: null;
+        have_cash: null;
+        is_dressing_room: null;
+        type: null;
+    };
     hideDeliveryOptions: {
         office: false;
-        courier: false;
+        door: false;
     };
     debug: false;
     goods: "d";
-    from: undefined;
+    from: null;
     defaultLocation: undefined;
     lang: Lang.RUS;
     currency: "RUB";
     tariffs: {
-        office: number[];
         door: number[];
+        office: number[];
     };
     onReady: Maybe<tReadyFunction | undefined>;
     onCalculate: Maybe<tCalculateFunction | undefined>;

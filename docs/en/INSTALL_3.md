@@ -35,8 +35,10 @@ You need to add an element to the page in which the widget will be embedded. Thi
 Next, you need to create a handler to initialize the widget. In it you must specify the desired widget configuration, as well as a link to the `service.php` file located on your server. A handler with a minimum number of parameters will look like this:
 ```html
 <script type="text/javascript">
-   new window.CdekWidget({ from: 'Novosibirsk', root: 'cdek-map', apiKey: 'yandex-api-key', servicePath: 'https://some-site.com/service.php', defaultLocation: 'Novosibirsk' });
+   new window.CDEKWidget({ from: 'Novosibirsk', root: 'cdek-map', apiKey: 'yandex-api-key', servicePath: 'https://some-site.com/service.php', defaultLocation: 'Novosibirsk' });
 </script>
 ```
+
+The widget initialization handler must be called when an element with the specified element ID already exists on the page, otherwise it will be re-created.
 
 Next, you need to configure the widget in accordance with the information from the [Setup 3.0](SETUP_3.md) page

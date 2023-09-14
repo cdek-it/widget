@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Пример работы виджета ПВЗ</title>
+  <script src="https://cdn.jsdelivr.net/gh/cdek-it/widget@latest/dist/cdek-widget.umd.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', () => {
+          window.widget = new window.CDEKWidget({
+                                                    from: 'Новосибирск',
+                                                    root: 'cdek-map',
+                                                    apiKey: 'f4e034c2-8c37-4168-8b97-99b6b3b268d7',
+                                                    canChoose: true,
+                                                    servicePath: '/service.php',
+                                                    hideFilters: {
+                                                        have_cashless: false,
+                                                        have_cash: false,
+                                                        is_dressing_room: false,
+                                                        type: false,
+                                                    },
+                                                    hideDeliveryOptions: {
+                                                        office: false,
+                                                        door: true,
+                                                    },
+                                                    popup: true,
+                                                    debug: false,
+                                                    goods: [
+                                                        {
+                                                            width: 10,
+                                                            height: 10,
+                                                            length: 10,
+                                                            weight: 10,
+                                                        },
+                                                    ],
+                                                    defaultLocation: [82.9346, 55.0415],
+                                                    lang: 'rus',
+                                                    currency: 'RUB',
+                                                    tariffs: {
+                                                        office: [233, 137, 139],
+                                                        door: [234, 136, 138],
+                                                    },
+                                                    onReady() {
+                                                        alert('Виджет загружен');
+                                                    },
+                                                    onCalculate() {
+                                                        alert('Расчет стоимости доставки произведен');
+                                                    },
+                                                    onChoose() {
+                                                        alert('Доставка выбрана');
+                                                    },
+                                                });
+      });
+  </script>
+</head>
+<body class="ml-2">
+  <p class="my-2">Пример инициализации виджета с указанием всех параметров виджета</p>
+  <button onclick="window.widget.open()" class="p-1 my-2 border-stone-500 border-2 rounded-md">Показать ПВЗ</button>
+</body>
+</html>
