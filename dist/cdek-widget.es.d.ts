@@ -147,6 +147,7 @@ declare const widgetSchema: ObjectSchema<{
         have_cash: boolean | null;
         is_dressing_room: boolean | null;
         type: OfficeType | null;
+        allowed_cod: boolean | null;
     };
     hideDeliveryOptions: {
         door: boolean;
@@ -188,6 +189,7 @@ declare const widgetSchema: ObjectSchema<{
         have_cash: null;
         is_dressing_room: null;
         type: null;
+        allowed_cod: null;
     };
     hideDeliveryOptions: {
         office: false;

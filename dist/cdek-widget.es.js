@@ -32776,7 +32776,9 @@ const widgetSchema = create$3({
     // No Legacy variant
     is_dressing_room: create$7().nullable().default(null),
     // No Legacy variant
-    type: create$6().nullable().oneOf(Object.values(OfficeType)).default(null)
+    type: create$6().nullable().oneOf(Object.values(OfficeType)).default(null),
+    // No Legacy variant
+    allowed_cod: create$7().nullable().default(null)
     // No Legacy variant
   }),
   // No Legacy variant
