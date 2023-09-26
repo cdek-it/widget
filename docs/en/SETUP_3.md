@@ -92,6 +92,7 @@ All configuration happens when the widget object is created. Once created, it ca
 | tariffs                       | object           | Value set by children's elements | A list of tariffs allowed for cost calculation and display to the user                                                                                                                                                                                                                                        |
 | tariffs.office                | array            | `[]`                             | A list of tariffs "up to pickup point" allowed for cost calculation and display to the user[^2]                                                                                                                                                                                                               |
 | tariffs.door                  | array            | `[]`                             | A list of door-to-door fares allowed for cost calculation and display to the user[^2]                                                                                                                                                                                                                         |
+| tariffs.pickup                | array            | `[]`                             | A list of door-to-pickup fares allowed for cost calculation and display to the user[^2]                                                                                                                                                                                                                       |
 | hideDeliveryOptions           | object           | Value set by children's elements | List of delivery types that should not be available to the buyer                                                                                                                                                                                                                                              |
 | hideDeliveryOptions.door      | boolean          | `false`                          | The buyer should not be able to choose delivery to his address                                                                                                                                                                                                                                                |
 | hideDeliveryOptions.office    | boolean          | `false`                          | The buyer should not be able to choose delivery to the pickup point                                                                                                                                                                                                                                           |
@@ -195,6 +196,7 @@ Address object for `office` mode:
 ```
 {
     city_code: number,
+    city: string,
     type: string,
     country_code: string,
     have_cashless: boolean,

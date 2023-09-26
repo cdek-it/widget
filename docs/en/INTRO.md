@@ -33,6 +33,7 @@ Requirements to the element (`root` parameter), in which the widget will be buil
 ## Compatibility with other scripts and other requirements
 - Stability of the widget is not guaranteed when used on a page with the Yandex Maps widget
 - Widget uses "Reset CSS" technology with help of [normalize.css](https://necolas.github.io/normalize.css/), stability of other pages, that don't use that technology is not guaranteed
+- When placing the widget map code inside the <form> tag, if you click on the buttons to zoom in/out of the map and determine the location, the submit event of this form is sent
 
 ## Questions and comments on the widget’s work
 Please send all your questions and comments to integrator@cdek.ru

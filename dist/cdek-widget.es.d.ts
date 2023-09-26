@@ -37,6 +37,7 @@ declare interface iGeocoderMember {
 
 declare interface iOffice {
     city_code: number;
+    city: string;
     type: OfficeType;
     country_code: string;
     have_cashless: boolean;
@@ -69,6 +70,7 @@ declare interface iTariff {
 
 declare interface iWidget extends InferType<typeof widgetSchema> {
     goods: iParcel[];
+    offices: iOffice[] | null;
     defaultLocation: string | LngLat;
     lang: Lang;
     onCalculate?: tCalculateFunction;
@@ -102,13 +104,17 @@ declare type tReadyFunction = () => void;
 
 declare class Widget {
     private readonly yandexMapSrc;
-    private readonly geocodeSrc;
     private readonly params;
-    private geocodeStringAbort;
-    private geocodeCoordinatesAbort;
-    private getOfficesAbort;
-    private getPriceAbort;
+    private readonly yandexApi;
+    private readonly cdekApi;
+    private readonly app;
+    private readonly div;
+    private readonly customDiv;
     constructor(input: iWidget);
+    updateOffices(offices: iOffice[]): Promise<void>;
+    updateTariff(tariff: iTariff): Promise<void>;
+    clearSelection(): void;
+    destroy(): void;
     open(): void;
     close(): void;
     addParcel(parcel: iParcel | iParcel[]): void;
@@ -120,12 +126,6 @@ declare class Widget {
     }[];
     resetParcels(): void;
     private init;
-    private getPrice;
-    private getOffices;
-    private formatGeocodeResponse;
-    private geocodeString;
-    private geocodeCoordinates;
-    private cancelRequest;
 }
 export default Widget;
 
@@ -154,6 +154,17 @@ declare const widgetSchema: ObjectSchema<{
         office: boolean;
     };
     debug: boolean;
+    offices: any[] | null;
+    officesRaw: any[] | null;
+    tariff: {
+        tariff_code?: number | undefined;
+        tariff_name?: string | undefined;
+        tariff_description?: string | undefined;
+        delivery_mode?: number | undefined;
+        period_min?: number | undefined;
+        period_max?: number | undefined;
+        delivery_sum?: number | undefined;
+    } | null;
     goods: {
         width: number;
         length: number;
@@ -167,10 +178,15 @@ declare const widgetSchema: ObjectSchema<{
     tariffs: {
         door: any[];
         office: any[];
+        pickup: any[];
     };
     onReady: tReadyFunction | undefined;
     onCalculate: tCalculateFunction | undefined;
     onChoose: tChooseFunction | undefined;
+    selected: {
+        door: string | null;
+        office: string | null;
+    };
 }, AnyObject, {
     apiKey: any;
     root: "cdek-map";
@@ -196,6 +212,9 @@ declare const widgetSchema: ObjectSchema<{
         door: false;
     };
     debug: false;
+    offices: null;
+    officesRaw: null;
+    tariff: null;
     goods: "d";
     from: null;
     defaultLocation: undefined;
@@ -204,10 +223,15 @@ declare const widgetSchema: ObjectSchema<{
     tariffs: {
         door: number[];
         office: number[];
+        pickup: number[];
     };
     onReady: Maybe<tReadyFunction | undefined>;
     onCalculate: Maybe<tCalculateFunction | undefined>;
     onChoose: Maybe<tChooseFunction | undefined>;
+    selected: {
+        door: null;
+        office: null;
+    };
 }, "">;
 
 declare const enum YandexGeocoderKind {
