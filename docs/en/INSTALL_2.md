@@ -42,7 +42,7 @@ For the correct calculation of the price of delivery, the widget needs authoriza
 
 To enter the data, open `scripts/service.php` file. Enter the data in the 17th (account) and 20th (key) lines inside the quotation marks.
 
-If you need to change priority of tariff calculations, change their order in the lines 11 (courier delivery) and 14 (customer pick-up from the pick-up point). You can find numbers of the tariffs in the documentation to the integration service https://confluence.cdek.ru/x/gUju in the section Appendix 1.
+If you need to change priority of tariff calculations, change their order in the lines 11 (courier delivery) and 14 (customer pick-up from the pick-up point). You can find numbers of the tariffs in the documentation to the integration service [https://api-docs.cdek.ru/15616129.html](https://api-docs.cdek.ru/15616129.html#:~:text=%D0%9F%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%201.%20%D0%A3%D1%81%D0%BB%D1%83%D0%B3%D0%B8%20(%D1%82%D0%B0%D1%80%D0%B8%D1%84%D1%8B)%20%D0%B8%20%D1%80%D0%B5%D0%B6%D0%B8%D0%BC%D1%8B%20%D0%B4%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B8%20%D0%A1%D0%94%D0%AD%D0%9A) in the section Appendix 1.
 
 ## Connecting scripts
 To connect the **local version of the widget**, you need to add the following code to the page: (we recommend to place it inside the <head> tag):
