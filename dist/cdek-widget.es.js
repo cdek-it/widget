@@ -7340,7 +7340,7 @@ const config = {
     defaultKey: {}.VITE_DEFAULT_KEY || "yandex-api-key",
     apiVersion: "v3",
     geocoderVersion: "1.x",
-    timeout: 2e3,
+    timeout: 5e3,
     defaultCenter: [37.622504, 55.753215],
     defaultZoom: 10,
     defaultDuration: 1e3
@@ -7366,8 +7366,7 @@ var YandexMapState = /* @__PURE__ */ ((YandexMapState2) => {
   YandexMapState2[YandexMapState2["PLUGGED"] = 1] = "PLUGGED";
   YandexMapState2[YandexMapState2["WAITING"] = 2] = "WAITING";
   YandexMapState2[YandexMapState2["READY"] = 3] = "READY";
-  YandexMapState2[YandexMapState2["REACT_LOADED"] = 4] = "REACT_LOADED";
-  YandexMapState2[YandexMapState2["POINTS_LOADED"] = 5] = "POINTS_LOADED";
+  YandexMapState2[YandexMapState2["POINTS_LOADED"] = 4] = "POINTS_LOADED";
   return YandexMapState2;
 })(YandexMapState || {});
 var YandexMapZoomVariants = /* @__PURE__ */ ((YandexMapZoomVariants2) => {
@@ -7603,6 +7602,9 @@ const map = defineStore("map", () => {
     return result;
   });
   const waitForMap = () => new Promise((resolve2, reject) => {
+    if (mapState.value >= YandexMapState.WAITING) {
+      resolve2(ymaps3.ready);
+    }
     coreStorage.lockUi();
     if (coreStorage.debug) {
       window.console.debug("[CDEK] Waiting for ymaps3 will be available");
@@ -7618,7 +7620,7 @@ const map = defineStore("map", () => {
       resolve2(ymaps3.ready);
     }, 100);
     setTimeout(() => {
-      if (mapState.value >= YandexMapState.READY || mapLoadError.value !== null) {
+      if (mapState.value >= YandexMapState.WAITING || mapLoadError.value !== null) {
         return;
       }
       if (coreStorage.debug) {
@@ -7630,7 +7632,6 @@ const map = defineStore("map", () => {
     }, config.map.timeout);
   }).then(
     () => {
-      mapState.value = YandexMapState.READY;
       return ymaps3.import("@yandex/ymaps3-reactify");
     },
     () => {
@@ -7639,7 +7640,7 @@ const map = defineStore("map", () => {
     }
   ).then(
     (ymaps3Reactify) => {
-      mapState.value = YandexMapState.REACT_LOADED;
+      mapState.value = YandexMapState.READY;
       coreStorage.unlockUi();
       return ymaps3Reactify;
     },

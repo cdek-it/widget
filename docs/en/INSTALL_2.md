@@ -7,7 +7,7 @@ After 3 version of the widget url`s and method of widget installation changes. T
 Migration process described at page [Migration 2.0 => 3.0](MIGRATION_2_3.md).
 
 ## Navigation
-- [Introduction](INTRO.md) 
+- [Introduction](INTRO.md)
 - [Installation 3.0](INSTALL_3.md)
 - Installation 2.0 (current page)
 - [Setup 3.0](SETUP_3.md)
