@@ -112,6 +112,8 @@ declare class Widget {
     private readonly customDiv;
     constructor(input: iWidget);
     updateOffices(offices: iOffice[]): Promise<void>;
+    updateOfficesRaw(officesRaw: any): Promise<void>;
+    updateLocation(location: any): Promise<void>;
     updateTariff(tariff: iTariff): Promise<void>;
     clearSelection(): void;
     destroy(): void;

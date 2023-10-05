@@ -30,6 +30,11 @@ Requirements to the element (`root` parameter), in which the widget will be buil
 - Make sure that this element has no styles related to the box model, excluding “width\height\float”. Otherwise, the widget may appear distorted.
 - It is recommended to set the element's width not less than 800 px, height – not less than 600 px.
 
+## Compatibility of backend widget versions
+- service.php of widget version 2 is not compatible with version 3
+- service.php of the widget version 3.0, 3.1 is not compatible with versions older than 3.2
+- service.php of the widget version 3.2 is not compatible with lower versions
+
 ## Compatibility with other scripts and other requirements
 - Stability of the widget is not guaranteed when used on a page with the Yandex Maps widget
 - Widget uses "Reset CSS" technology with help of [normalize.css](https://necolas.github.io/normalize.css/), stability of other pages, that don't use that technology is not guaranteed

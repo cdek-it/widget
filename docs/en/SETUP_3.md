@@ -248,3 +248,9 @@ using the following methods:
 |-------------|-----------------------------|
 | open()      | Shows a popup with a widget |
 | close()     | Hides a popup with a widget |
+
+You can control the displayed map in the widget using the following methods:
+
+| Method name                        | Method description                                                                                                                                                                                                     |
+|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| updateLocation(string \| number[]) | The map camera moves to the specified point according to the coordinates. If a string was passed, reverse geocoding will first be applied to it to obtain coordinates similar to the `params.defaultLocation` property |

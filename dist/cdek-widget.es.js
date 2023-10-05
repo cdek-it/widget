@@ -33211,7 +33211,9 @@ class CdekApi extends AbstractApi {
     const mapStorage = map();
     const coreStorage = core();
     mapStorage.mapState = YandexMapState.POINTS_LOADED;
-    const offices = coreStorage.params.officesRaw ? this.formatOffices(coreStorage.params.officesRaw || []) : coreStorage.params.offices || [];
+    const offices = coreStorage.params.officesRaw ? this.formatOffices(
+      Array.isArray(coreStorage.params.officesRaw) ? coreStorage.params.officesRaw : JSON.parse(coreStorage.params.officesRaw) || []
+    ) : coreStorage.params.offices || [];
     return offices.filter(
       (office) => (searchStorage.filters.allowed_cod === null || office.allowed_cod === searchStorage.filters.allowed_cod) && (searchStorage.filters.type === null || searchStorage.filters.type === OfficeType.ALL || office.type === searchStorage.filters.type) && (searchStorage.filters.have_cash === null || office.have_cash === searchStorage.filters.have_cash) && (searchStorage.filters.have_cashless === null || office.have_cashless === searchStorage.filters.have_cashless) && (searchStorage.filters.is_dressing_room === null || office.is_dressing_room === searchStorage.filters.is_dressing_room)
     );
@@ -33274,6 +33276,35 @@ class Widget {
       params: { ...coreStore.params, offices }
     });
     mapStore.offices = await this.cdekApi.getOffices();
+  }
+  async updateOfficesRaw(officesRaw) {
+    const coreStore = core();
+    const mapStore = map();
+    if (coreStore.debug) {
+      console.debug("[CDEK] Force updating raw offices");
+    }
+    coreStore.$patch({
+      params: {
+        ...coreStore.params,
+        officesRaw
+      }
+    });
+    mapStore.offices = await this.cdekApi.getOffices();
+  }
+  async updateLocation(location) {
+    const coreStore = core();
+    const mapStore = map();
+    if (coreStore.debug) {
+      console.debug("[CDEK] Force updating location");
+    }
+    if (typeof location === "string") {
+      const geoData = await this.yandexApi.geocodeString(location);
+      if (geoData.found > 0) {
+        mapStore.location.center = geoData.members[0].position;
+      }
+    } else {
+      mapStore.location.center = location;
+    }
   }
   async updateTariff(tariff) {
     const coreStore = core();
