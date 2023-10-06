@@ -32,6 +32,7 @@ declare interface iGeocoderMember {
     kind: YandexGeocoderKind;
     precision: YandexGeocoderPrecision;
     formatted: string;
+    country: string;
     components: iGeocoderComponent[];
 }
 

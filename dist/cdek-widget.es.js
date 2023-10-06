@@ -33034,6 +33034,7 @@ class YandexApi extends AbstractApi {
         kind: el2.GeoObject.metaDataProperty.GeocoderMetaData.kind,
         precision: el2.GeoObject.metaDataProperty.GeocoderMetaData.precision,
         formatted: el2.GeoObject.metaDataProperty.GeocoderMetaData.Address.formatted,
+        country: el2.GeoObject.metaDataProperty.GeocoderMetaData.Address.country_code,
         components: el2.GeoObject.metaDataProperty.GeocoderMetaData.Address.Components.map((el22) => ({
           kind: el22.kind,
           name: el22.name
