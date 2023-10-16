@@ -217,6 +217,8 @@
     kind: string,
     precision: string,
     formatted: string,
+    country: string,
+    city: string,
 }
 ```
 

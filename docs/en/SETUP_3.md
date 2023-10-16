@@ -220,6 +220,8 @@ Address object for `door` mode:
     kind: string,
     precision: string,
     formatted: string,
+    country: string,
+    city: string,
 }
 ```
 

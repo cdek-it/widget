@@ -33494,24 +33494,24 @@ class Widget {
       await debouncedPrice();
     });
     coreStorage.$subscribe(async (mutation, state) => {
-      var _a;
+      var _a, _b, _c;
       if (mutation.storeId !== "core" || mutation.type !== "patch function" || state.selectedTariff === null && !state.selected) {
         return;
       }
-      if (coreStorage.debug) {
-        console.debug(
-          "[CDEK] Select button clicked",
-          toRaw(state.selectedTariff),
-          state.mode,
-          state.mode === DeliveryMode.OFFICE ? toRaw(mapStorage.exactOffice) : toRaw(mapStorage.pointInfo)
-        );
+      let target;
+      if (state.mode === DeliveryMode.OFFICE) {
+        target = toRaw(mapStorage.exactOffice);
+      } else {
+        target = toRaw(mapStorage.pointInfo);
+        target = {
+          city: (_b = (_a = target.components.filter((el2) => el2.kind === YandexGeocoderKind.LOCALITY)) == null ? void 0 : _a[0]) == null ? void 0 : _b.name,
+          ...target
+        };
       }
-      (_a = this.params.onChoose) == null ? void 0 : _a.bind(
-        this,
-        state.mode,
-        toRaw(state.selectedTariff),
-        state.mode === DeliveryMode.OFFICE ? toRaw(mapStorage.exactOffice) : toRaw(mapStorage.pointInfo)
-      )();
+      if (coreStorage.debug) {
+        console.debug("[CDEK] Select button clicked", toRaw(state.selectedTariff), state.mode, target);
+      }
+      (_c = this.params.onChoose) == null ? void 0 : _c.bind(this, state.mode, toRaw(state.selectedTariff), target)();
     });
     coreStorage.$onAction(
       ({
