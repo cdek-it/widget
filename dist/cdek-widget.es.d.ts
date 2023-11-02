@@ -32,7 +32,8 @@ declare interface iGeocoderMember {
     kind: YandexGeocoderKind;
     precision: YandexGeocoderPrecision;
     formatted: string;
-    country: string;
+    country_code: string;
+    postal_code: string | null;
     components: iGeocoderComponent[];
 }
 
@@ -41,6 +42,7 @@ declare interface iOffice {
     city: string;
     type: OfficeType;
     country_code: string;
+    postal_code: string;
     have_cashless: boolean;
     have_cash: boolean;
     allowed_cod: boolean;
@@ -157,6 +159,7 @@ declare const widgetSchema: ObjectSchema<{
         office: boolean;
     };
     debug: boolean;
+    requirePostcode: boolean;
     offices: any[] | null;
     officesRaw: any[] | null;
     tariff: {
@@ -215,6 +218,7 @@ declare const widgetSchema: ObjectSchema<{
         door: false;
     };
     debug: false;
+    requirePostcode: false;
     offices: null;
     officesRaw: null;
     tariff: null;

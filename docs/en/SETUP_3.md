@@ -199,6 +199,7 @@ Address object for `office` mode:
     city: string,
     type: string,
     country_code: string,
+    postal_code: string,
     have_cashless: boolean,
     have_cash: boolean,
     allowed_cod: boolean,
@@ -220,7 +221,8 @@ Address object for `door` mode:
     kind: string,
     precision: string,
     formatted: string,
-    country: string,
+    country_code: string,
+    postal_code: string,
     city: string,
 }
 ```

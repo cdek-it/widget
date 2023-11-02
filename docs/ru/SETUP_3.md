@@ -195,6 +195,7 @@
     city_code: number,
     city: string,
     type: string,
+    postal_code: string,
     country_code: string,
     have_cashless: boolean,
     have_cash: boolean,
@@ -217,7 +218,8 @@
     kind: string,
     precision: string,
     formatted: string,
-    country: string,
+    postal_code: string,
+    country_code: string,
     city: string,
 }
 ```
