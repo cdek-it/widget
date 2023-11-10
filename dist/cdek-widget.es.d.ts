@@ -177,7 +177,13 @@ declare const widgetSchema: ObjectSchema<{
         height: number;
         weight: number;
     }[];
-    from: string | null;
+    from: string | {
+        code: number | null;
+        postal_code: string | null;
+        country_code: string | null;
+        city: string | null;
+        address: string | null;
+    } | null;
     defaultLocation: NonNullable<string | LngLat | undefined>;
     lang: Lang;
     currency: string;
@@ -223,7 +229,7 @@ declare const widgetSchema: ObjectSchema<{
     officesRaw: null;
     tariff: null;
     goods: "d";
-    from: null;
+    from: undefined;
     defaultLocation: undefined;
     lang: Lang.RUS;
     currency: "RUB";

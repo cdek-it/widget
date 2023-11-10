@@ -17,7 +17,13 @@ This page describes all possible settings for the widget to adapt to a specific 
 
 <script type="text/javascript">
   new window.CDEKWidget({
-                          from: 'Новосибирск',
+                          from: {
+                            country_code: 'RU',
+                            city: 'Новосибирск',
+                            postal_code: 630009,
+                            code: 270,
+                            address: 'ул. Большевистская, д. 101',
+                          },
                           root: 'cdek-map',
                           apiKey: 'yandex-api-key',
                           canChoose: true,
@@ -67,7 +73,7 @@ All configuration happens when the widget object is created. Once created, it ca
 
 | Property name                 | Property type    | Default value                    | Description                                                                                                                                                                                                                                                                                                   |
 |-------------------------------|------------------|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| from                          | string           | No value                         | The address from which the cargo will be sent. Can contain only a city or an entire address                                                                                                                                                                                                                   |
+| from                          | string\|object   | No value                         | The address from which the cargo will be sent. Can contain only a city or an entire address                                                                                                                                                                                                                   |
 | root                          | string           | `"cdek-map"`                     | ID of the element where the widget will be placed. If missing, this element will be created on the page                                                                                                                                                                                                       |
 | apiKey                        | string           | No value                         | КYandex.Map API access key                                                                                                                                                                                                                                                                                    |
 | canChoose                     | boolean          | `true`                           | Controlling the “Select” button in the pickup point description. If set to `false`, the button will not be displayed, which is suitable for an info widget in the “Delivery” section. If `true` – the button is shown with the ability to subscribe to the choice of pick-up point using the `onChoose` event |
@@ -137,7 +143,7 @@ The tariff object has the following structure:
         period_min: number,
         period_max: number,
         delivery_sum: number,
-    }[], 
+    }[],
     door: {
         tariff_code: number,
         tariff_name: string,
