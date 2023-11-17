@@ -52,6 +52,13 @@ declare interface iOffice {
     address: string;
     work_time: string;
     location: LngLat;
+    dimensions: Array<{
+        depth: number;
+        width: number;
+        height: number;
+    }> | null;
+    weight_min: number;
+    weight_max: number;
 }
 
 declare interface iParcel {
