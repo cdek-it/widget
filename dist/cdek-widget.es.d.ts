@@ -35,11 +35,16 @@ declare interface iGeocoderMember {
     country_code: string;
     postal_code: string | null;
     components: iGeocoderComponent[];
+    bounds: {
+        lower: number[];
+        upper: number[];
+    };
 }
 
 declare interface iOffice {
     city_code: number;
     city: string;
+    region: string;
     type: OfficeType;
     country_code: string;
     postal_code: string;
@@ -113,7 +118,6 @@ declare type tChooseFunction = (type: DeliveryMode, tariff: iTariff | null, targ
 declare type tReadyFunction = () => void;
 
 declare class Widget {
-    private readonly yandexMapSrc;
     private readonly params;
     private readonly yandexApi;
     private readonly cdekApi;
@@ -137,6 +141,7 @@ declare class Widget {
         weight: number;
     }[];
     resetParcels(): void;
+    private fixBounds;
     private init;
 }
 export default Widget;
@@ -167,6 +172,7 @@ declare const widgetSchema: ObjectSchema<{
     };
     debug: boolean;
     requirePostcode: boolean;
+    fixBounds: YandexGeocoderKind.COUNTRY | YandexGeocoderKind.PROVINCE | YandexGeocoderKind.LOCALITY | null;
     offices: any[] | null;
     officesRaw: any[] | null;
     tariff: {
@@ -232,6 +238,7 @@ declare const widgetSchema: ObjectSchema<{
     };
     debug: false;
     requirePostcode: false;
+    fixBounds: null;
     offices: null;
     officesRaw: null;
     tariff: null;
