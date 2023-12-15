@@ -248,7 +248,8 @@ To change/set the parameters of the cargo being sent, you must use the following
 | getParcels()                          | Returns cargo data in the form of an array containing iParcel[^4]                                                                   |
 | resetParcels()                        | Resets information about the cargo used by the widget                                                                               |
 
-[^4]: Object with structure: `{width: number, height: number, length: number, weight: number}`
+[^4]: Object with structure: `{width: number, height: number, length: number, weight: number}`, where the weight is
+indicated in grams (if a float weight number is transmitted, it will be rounded up to the nearest integer)
 
 ### Visual part
 

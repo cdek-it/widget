@@ -64,4 +64,6 @@ The names of the methods responsible for adding weight to the calculator for cal
 | cargo.get     | getParcels   |
 | cargo.reset   | resetParcels |
 
+And the weight of the parcel is now passed not in kilograms, but in grams.
+
 [^6]: You can read more at page [Setup 3.0](SETUP_3.md#operations-with-parcels)

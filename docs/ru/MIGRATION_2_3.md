@@ -62,4 +62,6 @@ const widget = new window.CDEKWidget({ ... });
 | cargo.get   | getParcels   |
 | cargo.reset | resetParcels |
 
+А вес посылки теперь указывается не в килограммах, а в граммах.
+
 [^6]: Подробнее можно прочитать на странице [Настройка 3.0](SETUP_3.md#операции-с-посылками)
