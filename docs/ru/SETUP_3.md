@@ -51,8 +51,8 @@
                           lang: 'rus',
                           currency: 'RUB',
                           tariffs: {
-                            office: [233, 137, 139],
-                            door: [234, 136, 138],
+                            office: [234, 136, 138],
+                            door: [233, 137, 139],
                           },
                           onReady() {
                             alert('Виджет загружен');
