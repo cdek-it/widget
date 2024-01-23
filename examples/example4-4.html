@@ -3,42 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <title>Пример работы виджета ПВЗ</title>
-  <script src="https://cdn.jsdelivr.net/gh/cdek-it/widget@latest/dist/cdek-widget.umd.js" type="text/javascript"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@cdek-it/widget@3" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@unocss/runtime" type="text/javascript"></script>
+  <link href="https://cdn.jsdelivr.net/npm/@unocss/reset/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jquery" type="text/javascript"></script>
   <script type="text/javascript">
       document.addEventListener('DOMContentLoaded', () => {
           window.widget = new window.CDEKWidget({
-                                                   apiKey: 'f4e034c2-8c37-4168-8b97-99b6b3b268d7',
-                                                   defaultLocation: 'Новосибирск',
-                                                   from: 'Казань',
-                                                   canChoose: false,
-                                                   goods: [ // установим данные о товарах из корзины
-                                                       { length: 20, width: 20, height: 20, weight: 2 },
-                                                   ],
-                                                   hideDeliveryOptions: {
-                                                       door: true,
-                                                   },
-                                                   tariffs: {
-                                                       office: [136],
-                                                       door: [137],
-                                                   },
-                                                   onCalculate: function(prices) {
-                                                       console.log(prices);
-                                                       // сделаем так, чтобы при расчете доставки до ПВЗ обновлялась информация в блоке с деталями доставки
-                                                       $('#delPricePVZ').html(prices.office[0].delivery_sum + ' руб.');
-                                                       $('#delPriceCourier').html(prices.door[0].delivery_sum + ' руб.');
-                                                       const cargo = this.getParcels();
-                                                       let ves = 0;
-                                                       let vesOb = 0;
-                                                       for (const key in cargo) {
-                                                           ves = ves + cargo[key].weight / 1000;
-                                                           vesOb = vesOb + ((cargo[key].length * cargo[key].width * cargo[key].height) / 5000);
-                                                       }
-                                                       $('#ves').html(ves + ' кг.');
-                                                       $('#vesob').html(vesOb + ' кг.');
-                                                   },
-                                               });
+                                                    apiKey: 'f4e034c2-8c37-4168-8b97-99b6b3b268d7',
+                                                    defaultLocation: 'Новосибирск',
+                                                    from: 'Казань',
+                                                    canChoose: false,
+                                                    goods: [ // установим данные о товарах из корзины
+                                                        { length: 20, width: 20, height: 20, weight: 2 },
+                                                    ],
+                                                    hideDeliveryOptions: {
+                                                        door: true,
+                                                    },
+                                                    tariffs: {
+                                                        office: [136],
+                                                        door: [137],
+                                                    },
+                                                    onCalculate: function(prices) {
+                                                        console.log(prices);
+                                                        // сделаем так, чтобы при расчете доставки до ПВЗ обновлялась информация в блоке с деталями доставки
+                                                        $('#delPricePVZ').html(prices.office[0].delivery_sum + ' руб.');
+                                                        $('#delPriceCourier').html(prices.door[0].delivery_sum +
+                                                                                     ' руб.');
+                                                        const cargo = this.getParcels();
+                                                        let ves = 0;
+                                                        let vesOb = 0;
+                                                        for (const key in cargo) {
+                                                            ves = ves + cargo[key].weight / 1000;
+                                                            vesOb =
+                                                              vesOb + ((cargo[key].length * cargo[key].width *
+                                                                cargo[key].height) / 5000);
+                                                        }
+                                                        $('#ves').html(ves + ' кг.');
+                                                        $('#vesob').html(vesOb + ' кг.');
+                                                    },
+                                                });
 
           window.goodAdded = (params) => {
               // напишем обработчик для добавления товару в корзину. Пусть он принимает объект вида { gabs:<габариты>,weight:<вес>}
@@ -46,7 +50,7 @@
                                    length: params.gabs[0],
                                    width: params.gabs[1],
                                    height: params.gabs[2],
-                                    //Килограммы в граммы
+                                   //Килограммы в граммы
                                    weight: params.weight * 1000,
                                });
           };
@@ -64,17 +68,23 @@
     <div class="border-lime-500 border-2 p-2">
       <span>Ботинки зимние фирмы Retchel</span><br />
       <span>Параметры коробки 20см*30см*10см, вес 2,5 кг.</span><br />
-      <button onclick="goodAdded({gabs:[20,30,10],weight:2.5})" class="p-1 my-2 border-stone-500 border-2 rounded-md">В корзину</button>
+      <button class="p-1 my-2 border-stone-500 border-2 rounded-md" onclick="goodAdded({gabs:[20,30,10],weight:2.5})">В
+        корзину
+      </button>
     </div>
     <div class="border-lime-500 border-2 p-2">
       <p>Футболка белая с логотипом CDEK</p>
       <span>Параметры коробки 15см*20см*2см, вес 0,2 кг.</span><br />
-      <button onclick="goodAdded({gabs:[15,20,2],weight:0.2})" class="p-1 my-2 border-stone-500 border-2 rounded-md">В корзину</button>
+      <button class="p-1 my-2 border-stone-500 border-2 rounded-md" onclick="goodAdded({gabs:[15,20,2],weight:0.2})">В
+        корзину
+      </button>
     </div>
     <div class="border-lime-500 border-2 p-2">
       <p>Куртка демисезонная с капюшоном</p>
       <span>Параметры коробки 35см*40см*20см, вес 1,7 кг.</span><br />
-      <button onclick="goodAdded({gabs:[35,40,20],weight:1.7})" class="p-1 my-2 border-stone-500 border-2 rounded-md">В корзину</button>
+      <button class="p-1 my-2 border-stone-500 border-2 rounded-md" onclick="goodAdded({gabs:[35,40,20],weight:1.7})">В
+        корзину
+      </button>
     </div>
   </div>
 

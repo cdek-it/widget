@@ -16,15 +16,10 @@ To correctly calculate delivery costs, the widget requires authorization data to
 To enter data, open the `service.php` file. The data is entered in the 7th (account) and 12th (key) lines inside empty quotes.
 
 ## Script setup
-To connect the widget, you need to add the code `<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/cdek-it/widget@latest/dist/cdek-widget.umd" to the desired page. js" charset="utf-8"></script>`. It is recommended to place it inside the `<head>` tag.
 
-You can select the specific version of the widget to be loaded. The above example automatically downloads latest - the latest version. Accordingly, every time the author releases a new version, it will be updated automatically. This connection option is not recommended for use in a production environment.
-
-Widget versions are created in the semver format: `<major version digit>.<minor version digit>.<patch digit>`.
-- If you want to automatically receive bug fixes in the widget that will not affect existing functionality (but will not add new functionality), then you must specify the first two digits of the version in the src of the loaded script, instead of the latest. For example:
-  `<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/cdek-it/widget@3.0/dist/cdek-widget.umd.js" charset="utf-8" ></script>`
-- If you want to automatically receive bug fixes and new functionality that is backward compatible, i.e. is guaranteed not to break an existing widget, then in the src of the loaded script, you must specify the first digit of the version, instead of the latest. For example: `<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/cdek-it/widget@3/dist/cdek-widget.umd.js" charset="utf- 8"></script>`
-- If you do not want to automatically receive the new code, then in the src of the loaded script you must specify the full version instead of the latest. For example: `<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/cdek-it/widget@3.0.0/dist/cdek-widget.umd.js" charset=" utf-8"></script>`
+To connect the widget, you need to add the
+code `<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@cdek-it/widget@3" to the desired page. js" charset="utf-8"></script>`.
+It is recommended to place it inside the `<head>` tag.
 
 ## Receiving Yandex.Map key
 To use the widget, you need to obtain a Yandex.Maps API key. Otherwise, the widget will not be displayed. The key generation process is described on the page: https://yandex.ru/dev/jsapi-v2-1/doc/ru/#get-api-key. Be sure to set the HTTP Referrer parameter equal to the address of your site for the key.

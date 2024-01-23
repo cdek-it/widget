@@ -17934,35 +17934,39 @@ class CdekApi extends AbstractApi {
     const coreStorage = core();
     if (coreStorage.params.tariff) {
       if (coreStorage.debug) {
-        console.debug("[CDEK] We have fixed price", coreStorage.params.tariff);
+        console.debug(
+          "[CDEK] We have fixed price",
+          coreStorage.params.tariff
+        );
       }
       return this.mapTariffsWithTypes([coreStorage.params.tariff]);
     } else if (targetLocation === void 0) {
-      throw new Error("No location and no fixed tariff was passed to price calc");
+      throw new Error(
+        "No location and no fixed tariff was passed to price calc"
+      );
     }
     if (coreStorage.debug) {
       console.debug("[CDEK] Loading prices from service");
     }
     this.cancelPriceRequest();
     this.getPriceAbort = new AbortController();
-    return await axios$1.post(
-      this.servicePath,
-      {
-        currency: Currency[coreStorage.params.currency],
-        lang: coreStorage.params.lang,
-        from_location: typeof coreStorage.params.from === "string" ? {
-          address: coreStorage.params.from
-        } : coreStorage.params.from,
-        to_location: targetLocation,
-        action: "calculate",
-        packages: coreStorage.params.goods
-      },
-      {
-        signal: this.getPriceAbort.signal
-      }
-    ).then((result) => {
+    return await axios$1.post(this.servicePath, {
+      currency: Currency[coreStorage.params.currency],
+      lang: coreStorage.params.lang,
+      from_location: typeof coreStorage.params.from === "string" ? {
+        address: coreStorage.params.from
+      } : coreStorage.params.from,
+      to_location: targetLocation,
+      action: "calculate",
+      packages: coreStorage.params.goods
+    }, {
+      signal: this.getPriceAbort.signal
+    }).then((result) => {
       if (coreStorage.debug) {
-        console.debug("[CDEK] Got prices from service", result.data.tariff_codes || []);
+        console.debug(
+          "[CDEK] Got prices from service",
+          result.data.tariff_codes || []
+        );
       }
       return this.mapTariffsWithTypes(result.data.tariff_codes || []);
     }).catch((e) => {
@@ -17978,7 +17982,6 @@ class CdekApi extends AbstractApi {
   }
   async getOffices() {
     const searchStorage = search();
-    const mapStorage = map();
     const coreStorage = core();
     searchStorage.loading = true;
     if (coreStorage.params.offices !== null || coreStorage.params.officesRaw !== null) {
@@ -17999,30 +18002,64 @@ class CdekApi extends AbstractApi {
     }
     this.cancelOfficeRequest();
     this.getOfficesAbort = new AbortController();
-    return await axios$1.get(this.servicePath, {
+    const firstPageResult = await this.fetchOfficePage(
+      1,
+      additionalParams
+    );
+    let offices = this.formatResult(firstPageResult);
+    const firstPageResultIsArray = Array.isArray(firstPageResult);
+    const totalPages = firstPageResultIsArray ? false : firstPageResult.headers["x-total-pages"];
+    const currentPage = firstPageResultIsArray ? false : firstPageResult.headers["x-current-page"];
+    if (totalPages && currentPage) {
+      const remainingPages = parseInt(totalPages) - parseInt(currentPage);
+      await Promise.all(Array.from(
+        { length: remainingPages },
+        (_e, i) => this.fetchOfficePage(
+          i,
+          additionalParams
+        ).then((r) => {
+          const response = typeof r.data === "string" ? JSON.parse(r.data) : r.data;
+          offices = [
+            ...offices,
+            ...this.formatOffices(response)
+          ];
+        })
+      ));
+    } else {
+      const allOffices = await this.fetchOfficePage(0, additionalParams, null);
+      offices = this.formatResult(allOffices);
+    }
+    if (coreStorage.debug) {
+      console.debug("[CDEK] Got points", offices);
+    }
+    searchStorage.loading = false;
+    return offices;
+  }
+  async fetchOfficePage(pageNumber, additionalParams, sizeNumber = 50) {
+    return axios$1.get(this.servicePath, {
       params: {
-        ...searchStorage.filters,
+        ...search().filters,
         ...additionalParams,
-        action: "offices"
+        action: "offices",
+        page: pageNumber,
+        size: sizeNumber
       },
-      signal: this.getOfficesAbort.signal
-    }).then((result) => {
-      const response = typeof result.data === "string" ? JSON.parse(result.data) : result.data;
-      if (coreStorage.debug) {
-        console.debug("[CDEK] Got points", response);
-      }
-      return this.formatOffices(response);
+      signal: this.getOfficesAbort ? this.getOfficesAbort.signal : void 0
     }).catch((e) => {
       if (axios$1.isCancel(e)) {
-        if (coreStorage.debug) {
+        if (core().debug) {
           console.debug("[CDEK] Offices request cancelled");
         }
         throw e;
       }
       console.error("[CDEK] Service error", e);
-      mapStorage.mapLoadError = YandexMapErrorCode.SERVICE_ERROR;
+      map().mapLoadError = YandexMapErrorCode.SERVICE_ERROR;
       return [];
-    }).finally(() => searchStorage.loading = false);
+    });
+  }
+  formatResult(result) {
+    const response = typeof result.data === "string" ? JSON.parse(result.data) : result.data;
+    return this.formatOffices(response);
   }
   formatOffices(offices) {
     return offices.map((e) => ({
@@ -18086,12 +18123,8 @@ class CdekApi extends AbstractApi {
   loadLocalOffices() {
     const searchStorage = search();
     const coreStorage = core();
-    const offices = coreStorage.params.officesRaw ? this.formatOffices(
-      Array.isArray(coreStorage.params.officesRaw) ? coreStorage.params.officesRaw : JSON.parse(coreStorage.params.officesRaw) || []
-    ) : coreStorage.params.offices || [];
-    return offices.filter(
-      (office) => (searchStorage.filters.allowed_cod === null || office.allowed_cod === searchStorage.filters.allowed_cod) && (searchStorage.filters.type === null || searchStorage.filters.type === OfficeType.ALL || office.type === searchStorage.filters.type) && (searchStorage.filters.have_cash === null || office.have_cash === searchStorage.filters.have_cash) && (searchStorage.filters.have_cashless === null || office.have_cashless === searchStorage.filters.have_cashless) && (searchStorage.filters.is_dressing_room === null || office.is_dressing_room === searchStorage.filters.is_dressing_room)
-    );
+    const offices = coreStorage.params.officesRaw ? this.formatOffices(Array.isArray(coreStorage.params.officesRaw) ? coreStorage.params.officesRaw : JSON.parse(coreStorage.params.officesRaw) || []) : coreStorage.params.offices || [];
+    return offices.filter((office) => (searchStorage.filters.allowed_cod === null || office.allowed_cod === searchStorage.filters.allowed_cod) && (searchStorage.filters.type === null || searchStorage.filters.type === OfficeType.ALL || office.type === searchStorage.filters.type) && (searchStorage.filters.have_cash === null || office.have_cash === searchStorage.filters.have_cash) && (searchStorage.filters.have_cashless === null || office.have_cashless === searchStorage.filters.have_cashless) && (searchStorage.filters.is_dressing_room === null || office.is_dressing_room === searchStorage.filters.is_dressing_room));
   }
 }
 class Widget {

@@ -71,11 +71,12 @@ class service
 
     private function getAuthToken()
     {
-        $result = json_decode($this->httpRequest('oauth/token', array(
+        $token = $this->httpRequest('oauth/token', array(
             'grant_type' => 'client_credentials',
             'client_id' => $this->login,
             'client_secret' => $this->secret,
-        ), true), true);
+        ), true);
+        $result = json_decode($token['result'], true);
         if (!isset($result['access_token'])) {
             throw new RuntimeException('Server not authorized to CDEK API');
         }
@@ -114,22 +115,46 @@ class service
             CURLOPT_USERAGENT => 'widget/2.0',
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => true,
         ));
 
-        $result = curl_exec($ch);
-
+        $response  = curl_exec($ch);
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        $headers = substr($response, 0, $headerSize);
+        $result = substr($response, $headerSize);
+        $addedHeaders = $this->getHeaderValue($headers);
         if ($result === false) {
             throw new RuntimeException(curl_error($ch), curl_errno($ch));
         }
 
-        return $result;
+        return array('result' => $result, 'addedHeaders' => $addedHeaders);
+    }
+
+    private function getHeaderValue($headers)
+    {
+        $headerLines = explode("\r\n", $headers);
+        $addedHeaders = [];
+        foreach ($headerLines as $line) {
+            if (!empty($line)) {
+                $parts = explode(': ', $line, 2);
+                $key = $parts[0];
+                $value = isset($parts[1]) ? $parts[1] : '';
+                $addedHeaders[$key] = $value;
+            }
+        }
+        return $addedHeaders;
     }
 
     private function sendResponse($data)
     {
         $this->http_response_code(200);
         header('Content-Type: application/json');
-        echo $data;
+        if (!empty($data['addedHeaders'])) {
+            foreach ($data['addedHeaders'] as $headerName => $headerValue) {
+                header($headerName.': '.$headerValue);
+            }
+        }
+        echo $data['result'];
         exit();
     }
 
