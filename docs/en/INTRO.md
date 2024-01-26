@@ -34,6 +34,7 @@ Requirements to the element (`root` parameter), in which the widget will be buil
 - service.php of widget version 2 is not compatible with version 3
 - service.php of the widget version 3.0, 3.1 is not compatible with versions older than 3.2
 - service.php of the widget version 3.2 is not compatible with lower versions
+- service.php of the widget version 3.9 is not compatible with versions older than 3.2
 
 ## Compatibility with other scripts and other requirements
 - Stability of the widget is not guaranteed when used on a page with the Yandex Maps widget
