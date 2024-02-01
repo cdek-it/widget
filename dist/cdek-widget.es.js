@@ -18365,9 +18365,12 @@ class Widget {
         coreStorage.togglePopup(Popup.INFO);
       }
     }).finally(coreStorage.unlockUi);
-    const debouncedUpdate = debounce(async (input) => {
+    const debouncedUpdate = debounce(async (input, forceUpdate = false) => {
       try {
-        mapStorage.offices = await this.cdekApi.getOffices();
+        if (forceUpdate) {
+          mapStorage.offices = [];
+          mapStorage.offices = await this.cdekApi.getOffices();
+        }
         searchStorage.searchResults = (await this.yandexApi.geocodeString(input)).members;
         searchStorage.loading = false;
       } catch (e) {
@@ -18379,10 +18382,14 @@ class Widget {
       if (mutation.storeId !== "search" || mutation.type !== "patch object") {
         return;
       }
+      let forceUpdate = false;
+      if (mutation.payload.hasOwnProperty("filters")) {
+        forceUpdate = true;
+      }
       searchStorage.loading = true;
       this.cdekApi.cancelOfficeRequest();
       this.yandexApi.cancelGeocodeStringRequest();
-      await debouncedUpdate(state.value);
+      await debouncedUpdate(state.value, forceUpdate);
     });
     const debouncedSearch = debounce(async (coordinates) => {
       try {
