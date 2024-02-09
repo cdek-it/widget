@@ -69,6 +69,130 @@ class service
         exit();
     }
 
+    private function http_response_code($code)
+    {
+        switch ($code) {
+            case 100:
+                $text = 'Continue';
+                break;
+            case 101:
+                $text = 'Switching Protocols';
+                break;
+            case 200:
+                $text = 'OK';
+                break;
+            case 201:
+                $text = 'Created';
+                break;
+            case 202:
+                $text = 'Accepted';
+                break;
+            case 203:
+                $text = 'Non-Authoritative Information';
+                break;
+            case 204:
+                $text = 'No Content';
+                break;
+            case 205:
+                $text = 'Reset Content';
+                break;
+            case 206:
+                $text = 'Partial Content';
+                break;
+            case 300:
+                $text = 'Multiple Choices';
+                break;
+            case 301:
+                $text = 'Moved Permanently';
+                break;
+            case 302:
+                $text = 'Moved Temporarily';
+                break;
+            case 303:
+                $text = 'See Other';
+                break;
+            case 304:
+                $text = 'Not Modified';
+                break;
+            case 305:
+                $text = 'Use Proxy';
+                break;
+            case 400:
+                $text = 'Bad Request';
+                break;
+            case 401:
+                $text = 'Unauthorized';
+                break;
+            case 402:
+                $text = 'Payment Required';
+                break;
+            case 403:
+                $text = 'Forbidden';
+                break;
+            case 404:
+                $text = 'Not Found';
+                break;
+            case 405:
+                $text = 'Method Not Allowed';
+                break;
+            case 406:
+                $text = 'Not Acceptable';
+                break;
+            case 407:
+                $text = 'Proxy Authentication Required';
+                break;
+            case 408:
+                $text = 'Request Time-out';
+                break;
+            case 409:
+                $text = 'Conflict';
+                break;
+            case 410:
+                $text = 'Gone';
+                break;
+            case 411:
+                $text = 'Length Required';
+                break;
+            case 412:
+                $text = 'Precondition Failed';
+                break;
+            case 413:
+                $text = 'Request Entity Too Large';
+                break;
+            case 414:
+                $text = 'Request-URI Too Large';
+                break;
+            case 415:
+                $text = 'Unsupported Media Type';
+                break;
+            case 500:
+                $text = 'Internal Server Error';
+                break;
+            case 501:
+                $text = 'Not Implemented';
+                break;
+            case 502:
+                $text = 'Bad Gateway';
+                break;
+            case 503:
+                $text = 'Service Unavailable';
+                break;
+            case 504:
+                $text = 'Gateway Time-out';
+                break;
+            case 505:
+                $text = 'HTTP Version not supported';
+                break;
+            default:
+                exit('Unknown http status code "' . htmlentities($code) . '"');
+                break;
+        }
+
+        $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+        header($protocol . ' ' . $code . ' ' . $text);
+        $GLOBALS['http_response_code'] = $code;
+    }
+
     private function getAuthToken()
     {
         $token = $this->httpRequest('oauth/token', array(
@@ -88,7 +212,7 @@ class service
     {
         $ch = curl_init("$this->baseUrl/$method");
 
-        $headers = array (
+        $headers = array(
             'Accept: application/json',
         );
 
@@ -112,13 +236,13 @@ class service
         }
 
         curl_setopt_array($ch, array(
-            CURLOPT_USERAGENT => 'widget/2.0',
+            CURLOPT_USERAGENT => 'widget/3.0',
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER => true,
         ));
 
-        $response  = curl_exec($ch);
+        $response = curl_exec($ch);
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $headers = substr($response, 0, $headerSize);
         $result = substr($response, $headerSize);
@@ -133,16 +257,9 @@ class service
     private function getHeaderValue($headers)
     {
         $headerLines = explode("\r\n", $headers);
-        $addedHeaders = [];
-        foreach ($headerLines as $line) {
-            if (!empty($line)) {
-                $parts = explode(': ', $line, 2);
-                $key = $parts[0];
-                $value = isset($parts[1]) ? $parts[1] : '';
-                $addedHeaders[$key] = $value;
-            }
-        }
-        return $addedHeaders;
+        return array_filter($headerLines, static function ($line) {
+            return !empty($line) && stripos($line, 'X-') !== false;
+        });
     }
 
     private function sendResponse($data)
@@ -150,8 +267,8 @@ class service
         $this->http_response_code(200);
         header('Content-Type: application/json');
         if (!empty($data['addedHeaders'])) {
-            foreach ($data['addedHeaders'] as $headerName => $headerValue) {
-                header($headerName.': '.$headerValue);
+            foreach ($data['addedHeaders'] as $header) {
+                header($header);
             }
         }
         echo $data['result'];
@@ -166,55 +283,5 @@ class service
     protected function calculate()
     {
         return $this->httpRequest('calculator/tarifflist', $this->requestData, false, true);
-    }
-
-    private function http_response_code($code)
-    {
-        switch ($code) {
-            case 100: $text = 'Continue'; break;
-            case 101: $text = 'Switching Protocols'; break;
-            case 200: $text = 'OK'; break;
-            case 201: $text = 'Created'; break;
-            case 202: $text = 'Accepted'; break;
-            case 203: $text = 'Non-Authoritative Information'; break;
-            case 204: $text = 'No Content'; break;
-            case 205: $text = 'Reset Content'; break;
-            case 206: $text = 'Partial Content'; break;
-            case 300: $text = 'Multiple Choices'; break;
-            case 301: $text = 'Moved Permanently'; break;
-            case 302: $text = 'Moved Temporarily'; break;
-            case 303: $text = 'See Other'; break;
-            case 304: $text = 'Not Modified'; break;
-            case 305: $text = 'Use Proxy'; break;
-            case 400: $text = 'Bad Request'; break;
-            case 401: $text = 'Unauthorized'; break;
-            case 402: $text = 'Payment Required'; break;
-            case 403: $text = 'Forbidden'; break;
-            case 404: $text = 'Not Found'; break;
-            case 405: $text = 'Method Not Allowed'; break;
-            case 406: $text = 'Not Acceptable'; break;
-            case 407: $text = 'Proxy Authentication Required'; break;
-            case 408: $text = 'Request Time-out'; break;
-            case 409: $text = 'Conflict'; break;
-            case 410: $text = 'Gone'; break;
-            case 411: $text = 'Length Required'; break;
-            case 412: $text = 'Precondition Failed'; break;
-            case 413: $text = 'Request Entity Too Large'; break;
-            case 414: $text = 'Request-URI Too Large'; break;
-            case 415: $text = 'Unsupported Media Type'; break;
-            case 500: $text = 'Internal Server Error'; break;
-            case 501: $text = 'Not Implemented'; break;
-            case 502: $text = 'Bad Gateway'; break;
-            case 503: $text = 'Service Unavailable'; break;
-            case 504: $text = 'Gateway Time-out'; break;
-            case 505: $text = 'HTTP Version not supported'; break;
-            default:
-                exit('Unknown http status code "' . htmlentities($code) . '"');
-                break;
-        }
-
-        $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
-        header($protocol . ' ' . $code . ' ' . $text);
-        $GLOBALS['http_response_code'] = $code;
     }
 }
