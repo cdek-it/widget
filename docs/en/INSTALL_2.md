@@ -18,7 +18,8 @@ Migration process described at page [Migration 2.0 => 3.0](MIGRATION_2_3.md).
 
 There are two ways of installing the widget:
 1. Local, when all the files are stored on your server.
-2. Minimal, when all the files are loaded from our web-site, and only authorization data is downloaded from your web-site.
+2. Minimal, when all the files are loaded from our web-site, and only authorization data is downloaded from your
+   web-site. (Unavailable from 01.04.2024, [read more](https://github.com/cdek-it/widget/discussions/43))
 
 Local installation allows you to keep all the files on your server, which provides faster loading of scripts, compared to the minimal installation. Also, this type of installation allows you to edit scripts and widget styles to suit your requirements.
 
