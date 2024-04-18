@@ -127,7 +127,7 @@ declare class Widget {
     constructor(input: iWidget);
     updateOffices(offices: iOffice[]): Promise<void>;
     updateOfficesRaw(officesRaw: any): Promise<void>;
-    updateLocation(location: any): Promise<void>;
+    updateLocation(location: any, zoom?: YandexMapZoomVariants): Promise<void>;
     updateTariff(tariff: iTariff): Promise<void>;
     clearSelection(): void;
     destroy(): void;
@@ -141,124 +141,125 @@ declare class Widget {
         weight: number;
     }[];
     resetParcels(): void;
+    selectOffice(code: string): void;
     private fixBounds;
     private init;
 }
 export default Widget;
 
-declare const widgetSchema: ObjectSchema<{
-    apiKey: string;
-    root: string;
-    sender: boolean;
-    canChoose: boolean;
-    popup: boolean;
-    servicePath: string;
-    hideFilters: {
-        have_cashless: boolean;
-        have_cash: boolean;
-        is_dressing_room: boolean;
-        type: boolean;
-    };
-    forceFilters: {
-        have_cashless: boolean | null;
-        have_cash: boolean | null;
-        is_dressing_room: boolean | null;
-        type: OfficeType | null;
-        allowed_cod: boolean | null;
-    };
-    hideDeliveryOptions: {
-        door: boolean;
-        office: boolean;
-    };
-    debug: boolean;
-    requirePostcode: boolean;
-    fixBounds: YandexGeocoderKind.COUNTRY | YandexGeocoderKind.PROVINCE | YandexGeocoderKind.LOCALITY | null;
-    offices: any[] | null;
-    officesRaw: any[] | null;
-    tariff: {
-        tariff_code?: number | undefined;
-        tariff_name?: string | undefined;
-        tariff_description?: string | undefined;
-        delivery_mode?: number | undefined;
-        period_min?: number | undefined;
-        period_max?: number | undefined;
-        delivery_sum?: number | undefined;
-    } | null;
-    goods: {
-        width: number;
-        length: number;
-        height: number;
-        weight: number;
-    }[];
-    from: string | {
-        code: number | null;
-        postal_code: string | null;
-        country_code: string | null;
-        city: string | null;
-        address: string | null;
-    } | null;
-    defaultLocation: NonNullable<string | LngLat | undefined>;
-    lang: Lang;
-    currency: string;
-    tariffs: {
-        door: any[];
-        office: any[];
-        pickup: any[];
-    };
-    onReady: tReadyFunction | undefined;
-    onCalculate: tCalculateFunction | undefined;
-    onChoose: tChooseFunction | undefined;
-    selected: {
-        door: string | null;
-        office: string | null;
-    };
+declare const widgetSchema: ObjectSchema<    {
+apiKey: string;
+root: string;
+sender: boolean;
+canChoose: boolean;
+popup: boolean;
+servicePath: string;
+hideFilters: {
+have_cashless: boolean;
+have_cash: boolean;
+is_dressing_room: boolean;
+type: boolean;
+};
+forceFilters: {
+have_cashless: boolean | null;
+have_cash: boolean | null;
+is_dressing_room: boolean | null;
+type: OfficeType | null;
+allowed_cod: boolean | null;
+};
+hideDeliveryOptions: {
+door: boolean;
+office: boolean;
+};
+debug: boolean;
+requirePostcode: boolean;
+fixBounds: YandexGeocoderKind.COUNTRY | YandexGeocoderKind.PROVINCE | YandexGeocoderKind.LOCALITY | null;
+offices: any[] | null;
+officesRaw: any[] | null;
+tariff: {
+tariff_code?: number | undefined;
+tariff_name?: string | undefined;
+tariff_description?: string | undefined;
+delivery_mode?: number | undefined;
+period_min?: number | undefined;
+period_max?: number | undefined;
+delivery_sum?: number | undefined;
+} | null;
+goods: {
+width: number;
+length: number;
+height: number;
+weight: number;
+}[];
+from: string | {
+code: number | null;
+postal_code: string | null;
+country_code: string | null;
+city: string | null;
+address: string | null;
+} | null;
+defaultLocation: NonNullable<string | LngLat | undefined>;
+lang: Lang;
+currency: string;
+tariffs: {
+door: any[];
+office: any[];
+pickup: any[];
+};
+onReady: tReadyFunction | undefined;
+onCalculate: tCalculateFunction | undefined;
+onChoose: tChooseFunction | undefined;
+selected: {
+door: string | null;
+office: string | null;
+};
 }, AnyObject, {
-    apiKey: any;
-    root: "cdek-map";
-    sender: false;
-    canChoose: true;
-    popup: false;
-    servicePath: "/service.php";
-    hideFilters: {
-        have_cashless: false;
-        have_cash: false;
-        is_dressing_room: false;
-        type: false;
-    };
-    forceFilters: {
-        have_cashless: null;
-        have_cash: null;
-        is_dressing_room: null;
-        type: null;
-        allowed_cod: null;
-    };
-    hideDeliveryOptions: {
-        office: false;
-        door: false;
-    };
-    debug: false;
-    requirePostcode: false;
-    fixBounds: null;
-    offices: null;
-    officesRaw: null;
-    tariff: null;
-    goods: "d";
-    from: undefined;
-    defaultLocation: undefined;
-    lang: Lang.RUS;
-    currency: "RUB";
-    tariffs: {
-        door: number[];
-        office: number[];
-        pickup: number[];
-    };
-    onReady: Maybe<tReadyFunction | undefined>;
-    onCalculate: Maybe<tCalculateFunction | undefined>;
-    onChoose: Maybe<tChooseFunction | undefined>;
-    selected: {
-        door: null;
-        office: null;
-    };
+apiKey: any;
+root: "cdek-map";
+sender: false;
+canChoose: true;
+popup: false;
+servicePath: "/service.php";
+hideFilters: {
+have_cashless: false;
+have_cash: false;
+is_dressing_room: false;
+type: false;
+};
+forceFilters: {
+have_cashless: null;
+have_cash: null;
+is_dressing_room: null;
+type: null;
+allowed_cod: null;
+};
+hideDeliveryOptions: {
+office: false;
+door: false;
+};
+debug: false;
+requirePostcode: false;
+fixBounds: null;
+offices: null;
+officesRaw: null;
+tariff: null;
+goods: "d";
+from: undefined;
+defaultLocation: undefined;
+lang: Lang.RUS;
+currency: "RUB";
+tariffs: {
+door: number[];
+office: number[];
+pickup: number[];
+};
+onReady: Maybe<tReadyFunction | undefined>;
+onCalculate: Maybe<tCalculateFunction | undefined>;
+onChoose: Maybe<tChooseFunction | undefined>;
+selected: {
+door: null;
+office: null;
+};
 }, "">;
 
 declare const enum YandexGeocoderKind {
@@ -288,6 +289,12 @@ declare const enum YandexGeocoderPrecision {
     NEAR = "near",
     NUMBER = "number",
     EXACT = "exact"
+}
+
+declare const enum YandexMapZoomVariants {
+    GENERAL = 10,
+    STREET = 15,
+    HOME = 17
 }
 
 export { }

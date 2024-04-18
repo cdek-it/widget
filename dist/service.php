@@ -65,7 +65,7 @@ class service
     {
         $this->http_response_code(400);
         header('Content-Type: application/json');
-        header('X-Service-Version: 3.9.7');
+        header('X-Service-Version: 3.10.0');
         echo json_encode(array('message' => $message));
         exit();
     }
@@ -238,7 +238,7 @@ class service
         }
 
         curl_setopt_array($ch, array(
-            CURLOPT_USERAGENT => 'widget/3.9.7',
+            CURLOPT_USERAGENT => 'widget/3.10.0',
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER => true,
@@ -268,7 +268,7 @@ class service
     {
         $this->http_response_code(200);
         header('Content-Type: application/json');
-        header('X-Service-Version: 3.9.7');
+        header('X-Service-Version: 3.10.0');
         if (!empty($data['addedHeaders'])) {
             foreach ($data['addedHeaders'] as $header) {
                 header($header);
