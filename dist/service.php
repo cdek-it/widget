@@ -33,16 +33,21 @@ class service
      * @var array Data From Request
      */
     private $requestData;
+    /** @var array Request metrics */
+    private $metrics;
 
     public function __construct($login, $secret, $baseUrl = 'https://api.cdek.ru/v2')
     {
         $this->login = $login;
         $this->secret = $secret;
         $this->baseUrl = $baseUrl;
+        $this->metrics = array();
     }
 
     public function process($requestData, $body)
     {
+        $time = $this->startMetrics();
+
         $this->requestData = array_merge($requestData, json_decode($body, true) ?: array());
 
         if (!isset($this->requestData['action'])) {
@@ -53,9 +58,11 @@ class service
 
         switch ($this->requestData['action']) {
             case 'offices':
-                $this->sendResponse($this->getOffices());
+                $this->sendResponse($this->getOffices(), $time);
+                break;
             case 'calculate':
-                $this->sendResponse($this->calculate());
+                $this->sendResponse($this->calculate(), $time);
+                break;
             default:
                 $this->sendValidationError('Unknown action');
         }
@@ -65,7 +72,7 @@ class service
     {
         $this->http_response_code(400);
         header('Content-Type: application/json');
-        header('X-Service-Version: 3.10.4');
+        header('X-Service-Version: 3.11.0');
         echo json_encode(array('message' => $message));
         exit();
     }
@@ -186,7 +193,6 @@ class service
                 break;
             default:
                 exit('Unknown http status code "' . htmlentities($code) . '"');
-                break;
         }
 
         $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
@@ -196,17 +202,28 @@ class service
 
     private function getAuthToken()
     {
+        $time = $this->startMetrics();
+
         $token = $this->httpRequest('oauth/token', array(
             'grant_type' => 'client_credentials',
             'client_id' => $this->login,
             'client_secret' => $this->secret,
         ), true);
+
+        $this->endMetrics('auth', 'Server Auth Time', $time);
+
         $result = json_decode($token['result'], true);
+
         if (!isset($result['access_token'])) {
             throw new RuntimeException('Server not authorized to CDEK API');
         }
 
         $this->authToken = $result['access_token'];
+    }
+
+    private function startMetrics()
+    {
+        return function_exists('hrtime') ? hrtime(true) : microtime(true);
     }
 
     private function httpRequest($method, $data, $useFormData = false, $useJson = false)
@@ -216,6 +233,7 @@ class service
         $headers = array(
             'Accept: application/json',
             'X-App-Name: widget_pvz',
+            'X-App-Version: 3.11.0'
         );
 
         if ($this->authToken) {
@@ -238,7 +256,7 @@ class service
         }
 
         curl_setopt_array($ch, array(
-            CURLOPT_USERAGENT => 'widget/3.10.4',
+            CURLOPT_USERAGENT => 'widget/3.11.0',
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER => true,
@@ -248,7 +266,9 @@ class service
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $headers = substr($response, 0, $headerSize);
         $result = substr($response, $headerSize);
+
         $addedHeaders = $this->getHeaderValue($headers);
+
         if ($result === false) {
             throw new RuntimeException(curl_error($ch), curl_errno($ch));
         }
@@ -264,27 +284,55 @@ class service
         });
     }
 
-    private function sendResponse($data)
+    private function endMetrics($metricName, $metricDescription, $start)
+    {
+        $this->metrics[] = array(
+            'name' => $metricName,
+            'description' => $metricDescription,
+            'time' => round(function_exists('hrtime') ? (hrtime(true) - $start) / 1e+6 : (microtime(true) - $start) * 1000,
+                2),
+        );
+    }
+
+    private function sendResponse($data, $start)
     {
         $this->http_response_code(200);
         header('Content-Type: application/json');
-        header('X-Service-Version: 3.10.4');
+        header('X-Service-Version: 3.11.0');
         if (!empty($data['addedHeaders'])) {
             foreach ($data['addedHeaders'] as $header) {
                 header($header);
             }
         }
+
+        $this->endMetrics('total', 'Total Time', $start);
+
+        if (!empty($this->metrics)) {
+            header('Server-Timing: ' . array_reduce($this->metrics, function ($c, $i) {
+                    return $c . $i['name'] . ';desc="' . $i['description'] . '";dur=' . $i['time'] . ',';
+                }, ''));
+        }
+
         echo $data['result'];
+
         exit();
     }
 
     protected function getOffices()
     {
-        return $this->httpRequest('deliverypoints', $this->requestData);
+        $time = $this->startMetrics();
+        $result = $this->httpRequest('deliverypoints', $this->requestData);
+
+        $this->endMetrics('office', 'Offices Request', $time);
+        return $result;
     }
 
     protected function calculate()
     {
-        return $this->httpRequest('calculator/tarifflist', $this->requestData, false, true);
+        $time = $this->startMetrics();
+        $result = $this->httpRequest('calculator/tarifflist', $this->requestData, false, true);
+
+        $this->endMetrics('calc', 'Calculate Request', $time);
+        return $result;
     }
 }
