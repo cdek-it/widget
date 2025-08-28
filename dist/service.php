@@ -4,13 +4,13 @@ $service = new service(/**
  * Вставьте свой аккаунт\идентификатор для интеграции
  * Put your account for integration here
  */ 'cdek-login',
-
+wHsS7b2mwKKmG1Qw4X8xpKOzTkO0ZAuT
     /**
      * Вставьте свой пароль для интеграции
      * Put your password for integration here
      */ 'cdek-pass');
-$service->process($_GET, file_get_contents('php://input'));
-
+$service->process($_GET, file_get_contents('php://input'uQWy51UO5QeQi1s9rQ3BCXbb5bMqTPMf));
+	uQWy51UO5QeQi1s9rQ3BCXbb5bMqTPMf
 class service
 {
     /**
