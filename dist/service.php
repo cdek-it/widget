@@ -192,7 +192,7 @@ class service
                 $text = 'HTTP Version not supported';
                 break;
             default:
-                exit('Unknown http status code "' . htmlentities($code) . '"');
+                $text = 'Unknown Status';
         }
 
         $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
@@ -263,17 +263,19 @@ class service
         ));
 
         $response = curl_exec($ch);
+
+        if ($response === false) {
+            throw new RuntimeException(curl_error($ch), curl_errno($ch));
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $headers = substr($response, 0, $headerSize);
         $result = substr($response, $headerSize);
 
         $addedHeaders = $this->getHeaderValue($headers);
 
-        if ($result === false) {
-            throw new RuntimeException(curl_error($ch), curl_errno($ch));
-        }
-
-        return array('result' => $result, 'addedHeaders' => $addedHeaders);
+        return array('result' => $result, 'addedHeaders' => $addedHeaders, 'httpCode' => $httpCode);
     }
 
     private function getHeaderValue($headers)
@@ -296,7 +298,7 @@ class service
 
     private function sendResponse($data, $start)
     {
-        $this->http_response_code(200);
+        $this->http_response_code(!empty($data['httpCode']) ? $data['httpCode'] : 200);
         header('Content-Type: application/json');
         header('X-Service-Version: 3.11.1');
         if (!empty($data['addedHeaders'])) {
