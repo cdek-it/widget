@@ -56,18 +56,22 @@ class service
             $this->sendValidationError('Action is required');
         }
 
-        $this->getAuthToken();
-
         switch ($this->requestData['action']) {
             case 'offices':
+                $this->getAuthToken();
+
                 $result = $this->getOffices();
 
                 $this->sendResponse($result, $time);
             case 'calculate':
+                $this->getAuthToken();
+
                 $result = $this->calculate();
 
                 $this->sendResponse($result, $time);
             case 'byCoordinate':
+                $this->getAuthToken();
+
                 $result = $this->getOfficesByCoordinates();
 
                 $this->sendResponse($result, $time);
