@@ -19,6 +19,7 @@ class service
      * @var string Auth login
      */
     private $login;
+
     /**
      * @var string Auth pwd
      */
