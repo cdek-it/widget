@@ -13,7 +13,7 @@ $service->process($_GET, file_get_contents('php://input'));
 
 class service
 {
-    const WIDGET_VERSION = '3.5.0';
+    const WIDGET_VERSION = '3.12.1';
 
     /**
      * @var string Auth login
