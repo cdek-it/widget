@@ -119,11 +119,14 @@ declare type tReadyFunction = () => void;
 
 declare class Widget {
     private readonly params;
+    private readonly pinia;
     private readonly yandexApi;
     private readonly cdekApi;
     private readonly app;
     private readonly div;
     private readonly customDiv;
+    private isDestroyed;
+    private readonly disposers;
     constructor(input: iWidget);
     updateOffices(offices: iOffice[]): Promise<void>;
     updateOfficesRaw(officesRaw: any): Promise<void>;
